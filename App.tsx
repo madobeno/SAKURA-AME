@@ -8,7 +8,6 @@ import {
   Bird, 
   Bug, 
   Settings, 
-  RotateCcw, 
   Droplets, 
   Hourglass, 
   X,
@@ -118,7 +117,6 @@ const App: React.FC = () => {
       setTimeout(() => {
           setIsShishiodoshiTilting(false); 
           audioEngine.playShishiodoshi(); 
-          // Trigger a massive ripple for the Shishiodoshi clack
           triggerVisualRipple(dimensions.width / 2, dimensions.height * 0.25, '#fff', 50);
       }, 1500); 
       
@@ -274,8 +272,14 @@ const App: React.FC = () => {
   if (!hasStarted) {
     return (
       <div className="flex flex-col items-center justify-center h-screen w-full bg-stone-950 text-sakura-100 relative overflow-hidden" onClick={startExperience}>
-        <div className="absolute inset-0 z-0 opacity-100 bg-cover bg-center transition-all duration-1000" style={{ backgroundImage: "url('https://raw.githubusercontent.com/madobeno/SAKURA-AME/main/public/%E5%A4%95%E6%A1%9C.jpg')" }}></div>
-        <div className="absolute inset-0 bg-black/30 z-0"></div>
+        <div className="absolute inset-0 z-0 opacity-100 transition-all duration-1000">
+          <img 
+            src="https://raw.githubusercontent.com/madobeno/SAKURA-AME/main/public/%E5%A4%95%E6%A1%9C.jpg" 
+            className="w-full h-full object-cover" 
+            alt="Evening Sakura"
+          />
+        </div>
+        <div className="absolute inset-0 bg-black/40 z-0"></div>
         <div className="z-10 text-center space-y-8 p-12 max-w-lg bg-stone-950/20 backdrop-blur-xl rounded-3xl border border-white/5 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] mx-4 animate-ripple-in">
           <h1 className="text-8xl font-serif tracking-[0.4em] text-white mb-2 drop-shadow-[0_15px_15px_rgba(0,0,0,0.9)]">桜雨</h1>
           <h2 className="text-xl font-light tracking-[0.3em] text-sakura-100/90 uppercase drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">Sakura Ame</h2>
@@ -291,13 +295,25 @@ const App: React.FC = () => {
 
   const isMobile = dimensions.width < 640;
   const drumSize = isMobile 
-    ? Math.min(dimensions.width * 0.35, dimensions.height * 0.3) 
+    ? Math.min(dimensions.width * 0.35, dimensions.height * 0.25) 
     : Math.min(dimensions.width * 0.4, dimensions.height * 0.35);
 
   return (
-    <div className={`relative h-screen w-full bg-gradient-to-b ${currentTheme.bgGradient} overflow-hidden font-serif select-none transition-colors duration-1000`} onMouseDown={handleInteraction} onTouchStart={handleInteraction}>
-      <div className={`absolute inset-0 opacity-100 pointer-events-none transition-opacity duration-1000`} style={{ backgroundImage: `url(${currentTheme.bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
-      <div className="absolute inset-0 bg-black/10 pointer-events-none"></div>
+    <div className={`relative h-screen w-full bg-stone-950 overflow-hidden font-serif select-none transition-colors duration-1000`} onMouseDown={handleInteraction} onTouchStart={handleInteraction}>
+      {/* 安定した背景表示のためのレイヤー構成 */}
+      <div key={currentTheme.bgImage} className={`absolute inset-0 opacity-100 pointer-events-none transition-opacity duration-1000 z-0 bg-gradient-to-b ${currentTheme.bgGradient}`}>
+         <img 
+            src={currentTheme.bgImage} 
+            className="w-full h-full object-cover transition-opacity duration-1000" 
+            alt={currentTheme.name}
+            onError={(e) => {
+              // 読み込み失敗時に透明にして背景グラデーションを見せる
+              (e.target as HTMLImageElement).style.opacity = '0';
+            }}
+         />
+      </div>
+      <div className="absolute inset-0 bg-black/15 pointer-events-none z-10"></div>
+      
       <SakuraVisualizer drops={drops} ripples={ripples} particles={particles} width={dimensions.width} height={dimensions.height} theme={currentTheme} />
 
       {isTimerFinished && (
@@ -322,7 +338,6 @@ const App: React.FC = () => {
                 <Hourglass size={22} />
             </button>
           </div>
-          <button onClick={resetExperience} className="p-4 bg-black/5 backdrop-blur-3xl rounded-full border border-white/10 text-white hover:scale-110 transition-all shadow-2xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"><RotateCcw size={22} /></button>
       </div>
 
       {/* Bottom Controls */}
@@ -338,21 +353,32 @@ const App: React.FC = () => {
           </button>
       </div>
 
-      {/* Shishiodoshi HUD */}
+      {/* Shishiodoshi HUD - Responsive scaling for mobile compatibility */}
       {timerRemaining !== null && !isTimerFinished && (
-          <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-40 flex flex-col items-center gap-8">
+          <div className="absolute top-2 sm:top-12 left-1/2 transform -translate-x-1/2 z-40 flex flex-col items-center gap-2 sm:gap-8 scale-[0.4] sm:scale-100 origin-top transition-transform">
               <div className="relative">
+                  {/* Water Trickle Flowing into the Shishiodoshi */}
+                  <div className="absolute top-[-30px] left-1/2 -translate-x-1/2 w-[2px] h-32 bg-sky-200/40 blur-[1px] opacity-80 animate-pulse transition-opacity duration-1000 overflow-hidden">
+                     <div className="w-full h-1/2 bg-sky-300/60 animate-bounce"></div>
+                  </div>
+                  
                   <div className={`relative w-16 h-56 transition-transform duration-[1500ms] ease-in-out origin-center ${isShishiodoshiTilting ? 'rotate-[115deg]' : 'rotate-0'}`}>
                       <div className="absolute inset-0 rounded-full border-2 border-white/15 shadow-[0_0_60px_rgba(0,0,0,0.7)] overflow-hidden bg-gradient-to-b from-stone-900/30 via-stone-800/30 to-stone-950/30 backdrop-blur-2xl">
                           <div 
                             className="absolute bottom-0 left-0 w-full bg-sakura-300/30 transition-all duration-1000 ease-linear shadow-[0_0_25px_rgba(249,168,212,0.5)]"
                             style={{ height: `${((timerTotal! - timerRemaining) / timerTotal!) * 100}%` }}
                           ></div>
+                          {/* Inner water ripples */}
+                          {timerRemaining % 2 === 0 && (
+                            <div className="absolute left-0 w-full h-2 bg-white/10 blur-[2px] animate-pulse" style={{ bottom: `${((timerTotal! - timerRemaining) / timerTotal!) * 100}%` }}></div>
+                          )}
                           <div className="absolute top-[25%] w-full h-[1px] bg-white/5"></div>
                           <div className="absolute top-[50%] w-full h-[1.5px] bg-white/10"></div>
                           <div className="absolute top-[75%] w-full h-[1px] bg-white/5"></div>
                       </div>
                   </div>
+                  
+                  {/* Pivot shadow */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-28 h-4 bg-black/60 rounded-full -z-10 shadow-3xl blur-[5px]"></div>
               </div>
               <div className="flex flex-col items-center">
@@ -365,7 +391,7 @@ const App: React.FC = () => {
       )}
 
       {/* RainDrums Positioning */}
-      <div className="absolute w-full h-full pointer-events-none">
+      <div className="absolute w-full h-full pointer-events-none z-30">
          <div className="absolute" style={{ left: '32%', top: `${PAD_Y_PERCENT}%`, width: drumSize, height: drumSize, transform: 'translate(-50%, -50%)' }}>
              <div className="absolute inset-0 rounded-full border border-white/10 backdrop-blur-2xl shadow-[0_0_200px_rgba(0,0,0,0.95)]" style={{ backgroundColor: currentTheme.drumColor }}></div>
              {NOTES.filter(n => n.drumIndex === 0).map((note) => (
@@ -381,7 +407,7 @@ const App: React.FC = () => {
       </div>
 
       {showTimer && (
-          <div className="absolute top-24 right-24 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in zoom-in-95 ring-1 ring-white/5">
+          <div className="absolute top-24 right-4 sm:right-24 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in zoom-in-95 ring-1 ring-white/5">
               <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
                   <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold drop-shadow-lg">Zen Meditation</h3>
                   <button onClick={closePopups} className="text-white/50 hover:text-white transition-colors"><X size={20} /></button>
@@ -410,7 +436,7 @@ const App: React.FC = () => {
       )}
 
       {showThemes && (
-          <div className="absolute bottom-36 left-8 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 ring-1 ring-white/5">
+          <div className="absolute bottom-36 left-4 sm:left-8 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 ring-1 ring-white/5">
               <div className="flex justify-between items-center mb-8">
                   <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold drop-shadow-lg">Atmosphere</h3>
                   <button onClick={closePopups} className="text-white/50 hover:text-white transition-colors"><X size={20} /></button>
@@ -426,28 +452,8 @@ const App: React.FC = () => {
           </div>
       )}
 
-      {showInstruments && (
-          <div className="absolute bottom-36 left-8 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 ring-1 ring-white/5">
-              <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold drop-shadow-lg">Sound Timbre</h3>
-                  <button onClick={closePopups} className="text-white/50 hover:text-white transition-colors"><X size={20} /></button>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                  {['Crystal', 'MusicBox', 'Ether', 'Deep', 'Bamboo', 'Suikin'].map((type) => (
-                      <button 
-                        key={type} 
-                        onClick={() => { setCurrentSoundType(type as SoundType); closePopups(); }}
-                        className={`py-5 rounded-2xl text-[10px] uppercase font-bold tracking-[0.2em] transition-all border shadow-xl ${currentSoundType === type ? 'bg-sakura-900/50 text-sakura-100 border-sakura-700/40' : 'bg-black/40 text-stone-100 border-transparent hover:text-white hover:bg-black/60'}`}
-                      >
-                          <span className="drop-shadow-md">{type === 'Suikin' ? '水琴窟' : type === 'MusicBox' ? '音匣' : type}</span>
-                      </button>
-                  ))}
-              </div>
-          </div>
-      )}
-
       {showMixer && (
-          <div className="absolute bottom-36 left-8 w-80 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 ring-1 ring-white/5">
+          <div className="absolute bottom-36 left-4 sm:left-8 w-80 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 ring-1 ring-white/5">
                <div className="flex justify-between items-center mb-8">
                   <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold drop-shadow-lg">Garden Audio</h3>
                   <button onClick={closePopups} className="text-white/50 hover:text-white transition-colors"><X size={20} /></button>
@@ -460,23 +466,6 @@ const App: React.FC = () => {
                    <div className="space-y-4">
                       <div className="flex justify-between text-[11px] text-white font-bold uppercase tracking-widest drop-shadow-xl"><span>Rain Density</span><span>{Math.round(rainDensity * 100)}%</span></div>
                       <input type="range" min="0" max="1" step="0.01" value={rainDensity} onChange={(e) => setRainDensity(parseFloat(e.target.value))} className="w-full h-2 bg-black/60 rounded-full appearance-none accent-indigo-400 cursor-pointer shadow-inner" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 pt-6 border-t border-white/10">
-                      {[
-                        { id: 'wind', icon: <Wind size={18} />, label: 'Breeze' },
-                        { id: 'birds', icon: <Bird size={18} />, label: 'Uguisu' },
-                        { id: 'river', icon: <Droplets size={18} />, label: 'River' },
-                        { id: 'crickets', icon: <Bug size={18} />, label: 'Mushi' },
-                      ].map((item) => (
-                          <button 
-                            key={item.id}
-                            onClick={() => updateAmbience(item.id as AmbienceType, { active: !ambience[item.id as AmbienceType].active })}
-                            className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all shadow-xl ${ambience[item.id as AmbienceType].active ? 'bg-black/60 border-white/20 text-white shadow-inner scale-[0.98]' : 'bg-transparent border-transparent text-white/50 hover:text-white'}`}
-                          >
-                              {item.icon}
-                              <span className="text-[10px] mt-3 uppercase tracking-widest font-bold drop-shadow-xl">{item.label}</span>
-                          </button>
-                      ))}
                   </div>
               </div>
           </div>
@@ -509,8 +498,8 @@ const DrumButton: React.FC<{ note: Note, activeNote: string | null, spawnDrop: (
                 <svg viewBox="0 0 50 50" className="w-full h-full overflow-visible">
                     <path 
                         d={petalPath} 
-                        fill={isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.4)'}
-                        stroke={isActive ? '#fbcfe8' : 'rgba(255, 255, 255, 0.6)'}
+                        fill={isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.35)'}
+                        stroke={isActive ? '#fbcfe8' : 'rgba(255, 255, 255, 0.55)'}
                         strokeWidth="1.2"
                     />
                 </svg>

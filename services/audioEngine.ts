@@ -17,7 +17,7 @@ class AudioEngine {
 
   init() {
     if (!this.ctx) {
-      this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 44100 });
       
       this.masterGain = this.ctx.createGain();
       this.masterGain.connect(this.ctx.destination);
@@ -78,22 +78,17 @@ class AudioEngine {
         gain.gain.exponentialRampToValueAtTime(0.001, t + 2.5);
         break;
       case 'MusicBox':
-        // Tines/Cylinder simulation: High purity with specific overtones
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, t);
-        
-        // Second harmonic for character
         const overtone = this.ctx.createOscillator();
         overtone.type = 'sine';
-        overtone.frequency.setValueAtTime(freq * 2.01, t); // Slight detune
+        overtone.frequency.setValueAtTime(freq * 2.01, t);
         const oGain = this.ctx.createGain();
         oGain.gain.setValueAtTime(0.15, t);
         oGain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
-        
         gain.gain.setValueAtTime(0, t);
         gain.gain.linearRampToValueAtTime(0.5, t + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 3.0);
-        
         overtone.connect(oGain);
         oGain.connect(gain);
         overtone.start(t);
@@ -152,7 +147,6 @@ class AudioEngine {
     osc.stop(t + 5);
   }
 
-  // --- Shishiodoshi Sound ---
   createShishiodoshiSound() {
     if (!this.ctx) return;
     const sampleRate = this.ctx.sampleRate;
@@ -160,27 +154,19 @@ class AudioEngine {
     const buffer = this.ctx.createBuffer(1, sampleRate * duration, sampleRate);
     const data = buffer.getChannelData(0);
     
-    // Improved Shishiodoshi Synthesis - Real "Kakoon"
     for (let i = 0; i < buffer.length; i++) {
         const t = i / sampleRate;
-        
-        // 1. INITIAL "KA" (Impact - stone on bamboo)
         const impactEnv = Math.exp(-t * 120); 
         const impact = (Math.random() * 0.4 + Math.sin(t * 1200 * Math.PI * 2) * 0.6) * impactEnv;
-
-        // 2. RESONANCE "KOO" (Hollow body resonance)
         const bodyEnv = Math.exp(-t * 3.5); 
         const body = (Math.sin(t * 260 * Math.PI * 2) * 0.5 + Math.sin(t * 390 * Math.PI * 2) * 0.3) * bodyEnv;
-
-        // 3. REVERB "OON" (Distance/Garden tail)
         let tail = 0;
         if (t > 0.08) {
             const tailT = t - 0.08;
-            const tailEnv = Math.exp(-tailT * 0.6); // Long decay
-            const mod = Math.sin(tailT * 5 * Math.PI * 2) * 0.05; // Slight wobbling echo
+            const tailEnv = Math.exp(-tailT * 0.6); 
+            const mod = Math.sin(tailT * 5 * Math.PI * 2) * 0.05; 
             tail = (Math.sin(tailT * 180 * Math.PI * 2) + mod) * 0.25 * tailEnv;
         }
-        
         data[i] = (impact * 0.7 + body * 0.4 + tail * 0.5) * 1.1;
     }
     this.shishiodoshiBuffer = buffer;
@@ -191,12 +177,9 @@ class AudioEngine {
     const source = this.ctx.createBufferSource();
     source.buffer = this.shishiodoshiBuffer;
     source.playbackRate.value = 0.95; 
-    
     source.connect(this.shishiodoshiGain);
     source.start();
   }
-
-  // --- Ambience System ---
 
   startAmbienceLoop() {
       setInterval(() => {
@@ -210,7 +193,6 @@ class AudioEngine {
     if (!this.ctx || !this.masterGain) return;
     this.ambienceState[type].active = active;
     this.ambienceState[type].volume = vol;
-
     if (['rain', 'wind', 'river'].includes(type)) {
         this.handleContinuousNoise(type, active, vol);
     }
@@ -229,16 +211,13 @@ class AudioEngine {
             const source = this.ctx!.createBufferSource();
             source.buffer = this.buffers[type];
             source.loop = true;
-            
             const filter = this.ctx!.createBiquadFilter();
             if (type === 'rain') { filter.type = 'lowpass'; filter.frequency.value = 800; }
             if (type === 'wind') { filter.type = 'bandpass'; filter.frequency.value = 400; filter.Q.value = 1; }
             if (type === 'river') { filter.type = 'lowpass'; filter.frequency.value = 300; }
-
             const gain = this.ctx!.createGain();
             gain.gain.value = 0;
             gain.gain.setTargetAtTime(vol * 0.15, this.ctx!.currentTime, 1);
-
             source.connect(filter);
             filter.connect(gain);
             gain.connect(this.masterGain!);
@@ -252,7 +231,7 @@ class AudioEngine {
           const gain = this.ambienceState[type as AmbienceType].nodes![1] as GainNode;
           const source = this.ambienceState[type as AmbienceType].nodes![0] as AudioBufferSourceNode;
           gain.gain.setTargetAtTime(0, this.ctx!.currentTime, 0.5);
-          setTimeout(() => { source.stop(); }, 600);
+          setTimeout(() => { try { source.stop(); } catch(e) {} }, 600);
           this.ambienceState[type as AmbienceType].nodes = undefined;
       }
   }

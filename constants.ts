@@ -48,7 +48,7 @@ export const THEMES: Theme[] = [
     name: '春の庭 (Spring Garden)',
     bgGradient: 'from-stone-950 via-stone-900 to-stone-950',
     bgImage: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=2000&q=80',
-    drumColor: 'rgba(255, 241, 242, 0.12)',
+    drumColor: 'rgba(255, 241, 242, 0.08)',
     rainColor: 'rgba(254, 202, 202, 0.8)',
     accentColor: '#f9a8d4',
     particleColor: '#fbcfe8'
@@ -56,11 +56,11 @@ export const THEMES: Theme[] = [
   {
     id: 'rainy_path',
     name: '雨の小径 (Rainy Path)',
-    bgGradient: 'from-stone-950 via-green-950/20 to-stone-950',
-    bgImage: 'https://raw.githubusercontent.com/madobeno/SAKURA-AME/main/public/path.jpg',
-    drumColor: 'rgba(20, 40, 30, 0.4)', // 苔むした木道に馴染む深緑
+    bgGradient: 'from-stone-950 via-green-900/10 to-stone-950',
+    bgImage: 'path.jpg',
+    drumColor: 'rgba(20, 40, 30, 0.3)', 
     rainColor: 'rgba(186, 230, 253, 0.75)',
-    accentColor: '#4ade80', // 若草色
+    accentColor: '#4ade80', 
     particleColor: '#bae6fd'
   },
   {
@@ -68,7 +68,7 @@ export const THEMES: Theme[] = [
     name: '蓮池 (Lotus Pond)',
     bgGradient: 'from-teal-950 via-stone-900 to-teal-950',
     bgImage: 'https://raw.githubusercontent.com/madobeno/SAKURA-AME/main/public/%E8%93%AE%E6%B1%A0.jpg',
-    drumColor: 'rgba(20, 83, 45, 0.25)',
+    drumColor: 'rgba(20, 83, 45, 0.15)',
     rainColor: 'rgba(167, 243, 208, 0.7)',
     accentColor: '#4ade80',
     particleColor: '#86efac'
@@ -77,10 +77,10 @@ export const THEMES: Theme[] = [
     id: 'bridge',
     name: '朱橋 (Red Bridge)',
     bgGradient: 'from-stone-950 via-red-950/10 to-stone-950',
-    bgImage: 'https://raw.githubusercontent.com/madobeno/SAKURA-AME/main/public/bridge.jpg',
-    drumColor: 'rgba(127, 29, 29, 0.25)', // 橋の朱色を透かす伝統色
+    bgImage: 'bridge.jpg',
+    drumColor: 'rgba(127, 29, 29, 0.15)', 
     rainColor: 'rgba(254, 202, 202, 0.75)',
-    accentColor: '#f87171', // 珊瑚色
+    accentColor: '#f87171', 
     particleColor: '#fca5a5'
   }
 ];
@@ -94,4 +94,4 @@ export const SHISHIODOSHI_PRESETS: TimerPreset[] = [
 ];
 
 export const GRAVITY_SPEED = 12; 
-export const PAD_Y_PERCENT = 52; 
+export const PAD_Y_PERCENT = 52;
