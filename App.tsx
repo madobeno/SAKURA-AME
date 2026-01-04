@@ -4,15 +4,16 @@ import {
   Volume2, 
   VolumeX, 
   Sliders, 
-  Wind, 
-  Bird, 
-  Bug, 
   Settings, 
-  Droplets, 
   Hourglass, 
   X,
   Sparkles,
-  Music
+  Music,
+  Bird,
+  CloudRain,
+  Wind,
+  Waves,
+  Bug
 } from 'lucide-react';
 import { 
   Note, 
@@ -147,12 +148,14 @@ const App: React.FC = () => {
     audioEngine.setMasterVolume(nextMute ? 0 : masterVolume);
   };
 
-  const updateAmbience = (type: AmbienceType, changes: Partial<AmbienceConfig>) => {
-    setAmbience(prev => {
-      const newConfig = { ...prev[type], ...changes };
-      if (!isMuted) audioEngine.setAmbience(type, newConfig.active, newConfig.volume);
-      return { ...prev, [type]: newConfig };
-    });
+  const toggleAmbience = (type: AmbienceType) => {
+    const nextActive = !ambience[type].active;
+    const nextAmbience = {
+      ...ambience,
+      [type]: { ...ambience[type], active: nextActive }
+    };
+    setAmbience(nextAmbience);
+    audioEngine.setAmbience(type, nextActive, ambience[type].volume);
   };
 
   const handleHit = useCallback((noteId: string, x: number, y: number) => {
@@ -274,12 +277,12 @@ const App: React.FC = () => {
       <div className="flex flex-col items-center justify-center h-screen w-full bg-stone-950 text-sakura-100 relative overflow-hidden" onClick={startExperience}>
         <div className="absolute inset-0 z-0 opacity-100 transition-all duration-1000">
           <img 
-            src="https://raw.githubusercontent.com/madobeno/SAKURA-AME/main/public/%E5%A4%95%E6%A1%9C.jpg" 
+            src="https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=2000&q=80" 
             className="w-full h-full object-cover" 
-            alt="Evening Sakura"
+            alt="Spring Garden"
           />
         </div>
-        <div className="absolute inset-0 bg-black/40 z-0"></div>
+        <div className="absolute inset-0 bg-black/50 z-0"></div>
         <div className="z-10 text-center space-y-8 p-12 max-w-lg bg-stone-950/20 backdrop-blur-xl rounded-3xl border border-white/5 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] mx-4 animate-ripple-in">
           <h1 className="text-8xl font-serif tracking-[0.4em] text-white mb-2 drop-shadow-[0_15px_15px_rgba(0,0,0,0.9)]">桜雨</h1>
           <h2 className="text-xl font-light tracking-[0.3em] text-sakura-100/90 uppercase drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">Sakura Ame</h2>
@@ -300,19 +303,23 @@ const App: React.FC = () => {
 
   return (
     <div className={`relative h-screen w-full bg-stone-950 overflow-hidden font-serif select-none transition-colors duration-1000`} onMouseDown={handleInteraction} onTouchStart={handleInteraction}>
-      {/* 安定した背景表示のためのレイヤー構成 */}
-      <div key={currentTheme.bgImage} className={`absolute inset-0 opacity-100 pointer-events-none transition-opacity duration-1000 z-0 bg-gradient-to-b ${currentTheme.bgGradient}`}>
+      {/* Background Layer */}
+      <div key={currentTheme.id} className={`absolute inset-0 opacity-100 pointer-events-none transition-opacity duration-1000 z-0 bg-gradient-to-b ${currentTheme.bgGradient}`}>
          <img 
             src={currentTheme.bgImage} 
             className="w-full h-full object-cover transition-opacity duration-1000" 
             alt={currentTheme.name}
             onError={(e) => {
-              // 読み込み失敗時に透明にして背景グラデーションを見せる
               (e.target as HTMLImageElement).style.opacity = '0';
             }}
          />
       </div>
-      <div className="absolute inset-0 bg-black/15 pointer-events-none z-10"></div>
+      
+      {/* Overlay Veil Layer (Dynamic color for white/dark veils) */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-10 transition-colors duration-1000"
+        style={{ backgroundColor: currentTheme.overlayColor || 'rgba(0, 0, 0, 0.2)' }}
+      ></div>
       
       <SakuraVisualizer drops={drops} ripples={ripples} particles={particles} width={dimensions.width} height={dimensions.height} theme={currentTheme} />
 
@@ -353,39 +360,50 @@ const App: React.FC = () => {
           </button>
       </div>
 
-      {/* Shishiodoshi HUD - Responsive scaling for mobile compatibility */}
+      {/* Shishiodoshi HUD */}
       {timerRemaining !== null && !isTimerFinished && (
           <div className="absolute top-2 sm:top-12 left-1/2 transform -translate-x-1/2 z-40 flex flex-col items-center gap-2 sm:gap-8 scale-[0.4] sm:scale-100 origin-top transition-transform">
               <div className="relative">
-                  {/* Water Trickle Flowing into the Shishiodoshi */}
-                  <div className="absolute top-[-30px] left-1/2 -translate-x-1/2 w-[2px] h-32 bg-sky-200/40 blur-[1px] opacity-80 animate-pulse transition-opacity duration-1000 overflow-hidden">
-                     <div className="w-full h-1/2 bg-sky-300/60 animate-bounce"></div>
+                  {/* 水のしずくアニメーション */}
+                  <div className="absolute top-[-40px] left-1/2 -translate-x-1/2 w-[2px] h-32 bg-sky-200/30 blur-[1px] opacity-60 animate-pulse transition-opacity duration-1000 overflow-hidden">
+                     <div className="w-full h-1/2 bg-sky-100/50 animate-bounce"></div>
                   </div>
                   
-                  <div className={`relative w-16 h-56 transition-transform duration-[1500ms] ease-in-out origin-center ${isShishiodoshiTilting ? 'rotate-[115deg]' : 'rotate-0'}`}>
-                      <div className="absolute inset-0 rounded-full border-2 border-white/15 shadow-[0_0_60px_rgba(0,0,0,0.7)] overflow-hidden bg-gradient-to-b from-stone-900/30 via-stone-800/30 to-stone-950/30 backdrop-blur-2xl">
+                  {/* 竹の本体 */}
+                  <div className={`relative w-14 h-64 transition-transform duration-[1500ms] ease-in-out origin-center ${isShishiodoshiTilting ? 'rotate-[110deg]' : 'rotate-0'}`}>
+                      {/* 竹筒のメインボディ */}
+                      <div className="absolute inset-0 rounded-full border-r border-white/10 border-b border-black/30 shadow-[0_0_40px_rgba(0,0,0,0.6)] overflow-hidden bg-gradient-to-r from-emerald-900/40 via-emerald-700/40 to-emerald-950/40 backdrop-blur-2xl">
+                          {/* 縦のハイライト（竹の光沢） */}
+                          <div className="absolute inset-y-0 left-1/4 w-[2px] bg-white/5 blur-[1px]"></div>
+                          
+                          {/* 竹の節（ふし） */}
+                          <div className="absolute top-1/4 left-0 w-full h-[1px] bg-black/40 shadow-[0_1px_2px_rgba(255,255,255,0.05)]"></div>
+                          <div className="absolute top-1/2 left-0 w-full h-[1px] bg-black/40 shadow-[0_1px_2px_rgba(255,255,255,0.05)]"></div>
+                          <div className="absolute top-3/4 left-0 w-full h-[1px] bg-black/40 shadow-[0_1px_2px_rgba(255,255,255,0.05)]"></div>
+
+                          {/* 溜まっている水 */}
                           <div 
-                            className="absolute bottom-0 left-0 w-full bg-sakura-300/30 transition-all duration-1000 ease-linear shadow-[0_0_25px_rgba(249,168,212,0.5)]"
+                            className="absolute bottom-0 left-0 w-full bg-sky-400/20 transition-all duration-1000 ease-linear shadow-[inset_0_2px_10px_rgba(255,255,255,0.1)]"
                             style={{ height: `${((timerTotal! - timerRemaining) / timerTotal!) * 100}%` }}
-                          ></div>
-                          {/* Inner water ripples */}
-                          {timerRemaining % 2 === 0 && (
-                            <div className="absolute left-0 w-full h-2 bg-white/10 blur-[2px] animate-pulse" style={{ bottom: `${((timerTotal! - timerRemaining) / timerTotal!) * 100}%` }}></div>
-                          )}
-                          <div className="absolute top-[25%] w-full h-[1px] bg-white/5"></div>
-                          <div className="absolute top-[50%] w-full h-[1.5px] bg-white/10"></div>
-                          <div className="absolute top-[75%] w-full h-[1px] bg-white/5"></div>
+                          >
+                             {/* 水面の輝き */}
+                             <div className="w-full h-[1px] bg-white/40 blur-[1px] animate-pulse"></div>
+                          </div>
                       </div>
+                      
+                      {/* 支柱（ピボット軸） */}
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-2 bg-stone-800 rounded-full -z-10 shadow-lg border-b border-white/5"></div>
                   </div>
                   
-                  {/* Pivot shadow */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-28 h-4 bg-black/60 rounded-full -z-10 shadow-3xl blur-[5px]"></div>
+                  {/* 接地部分の影 */}
+                  <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-32 h-6 bg-black/40 rounded-full -z-20 blur-[8px]"></div>
               </div>
-              <div className="flex flex-col items-center">
-                <span className="text-xl font-serif text-white tracking-[0.3em] bg-black/30 border border-white/10 px-10 py-3 rounded-full shadow-3xl backdrop-blur-3xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
+              
+              <div className="flex flex-col items-center mt-4">
+                <span className="text-xl font-serif text-white tracking-[0.3em] bg-emerald-950/30 border border-white/10 px-10 py-3 rounded-full shadow-3xl backdrop-blur-3xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
                     {Math.floor(timerRemaining / 60)}:{String(timerRemaining % 60).padStart(2, '0')}
                 </span>
-                <span className="text-[10px] mt-4 text-white/90 uppercase tracking-[0.5em] drop-shadow-[0_2px_5px_rgba(0,0,0,1)] font-bold">Shishiodoshi</span>
+                <span className="text-[10px] mt-4 text-emerald-100/70 uppercase tracking-[0.5em] drop-shadow-[0_2px_5px_rgba(0,0,0,1)] font-bold">Shishiodoshi</span>
               </div>
           </div>
       )}
@@ -453,20 +471,76 @@ const App: React.FC = () => {
       )}
 
       {showMixer && (
-          <div className="absolute bottom-36 left-4 sm:left-8 w-80 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 ring-1 ring-white/5">
-               <div className="flex justify-between items-center mb-8">
+          <div className="absolute bottom-36 left-4 sm:left-8 w-80 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 ring-1 ring-white/5 overflow-hidden">
+               <div className="flex justify-between items-center mb-6">
                   <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold drop-shadow-lg">Garden Audio</h3>
                   <button onClick={closePopups} className="text-white/50 hover:text-white transition-colors"><X size={20} /></button>
               </div>
-              <div className="space-y-8">
-                  <div className="space-y-4">
+              <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                  {/* Master Volume */}
+                  <div className="space-y-3">
                       <div className="flex justify-between text-[11px] text-white font-bold uppercase tracking-widest drop-shadow-xl"><span>Volume</span><span>{Math.round(masterVolume * 100)}%</span></div>
                       <input type="range" min="0" max="1" step="0.01" value={masterVolume} onChange={(e) => { setMasterVolume(parseFloat(e.target.value)); audioEngine.setMasterVolume(parseFloat(e.target.value)); }} className="w-full h-2 bg-black/60 rounded-full appearance-none accent-sakura-400 cursor-pointer shadow-inner" />
                   </div>
-                   <div className="space-y-4">
+                  
+                  {/* Rain Density */}
+                   <div className="space-y-3">
                       <div className="flex justify-between text-[11px] text-white font-bold uppercase tracking-widest drop-shadow-xl"><span>Rain Density</span><span>{Math.round(rainDensity * 100)}%</span></div>
                       <input type="range" min="0" max="1" step="0.01" value={rainDensity} onChange={(e) => setRainDensity(parseFloat(e.target.value))} className="w-full h-2 bg-black/60 rounded-full appearance-none accent-indigo-400 cursor-pointer shadow-inner" />
                   </div>
+
+                  <div className="w-full h-[1px] bg-white/10 my-2"></div>
+
+                  {/* Ambience Toggles */}
+                  <div className="space-y-4">
+                      <h4 className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-bold">Environment</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button 
+                          onClick={() => toggleAmbience('birds')}
+                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${ambience.birds.active ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100' : 'bg-black/20 border-white/5 text-stone-500 hover:text-stone-300'}`}
+                        >
+                          <Bird size={16} />
+                          <span className="text-[10px] uppercase tracking-widest font-bold">Birds</span>
+                        </button>
+                        <button 
+                          onClick={() => toggleAmbience('wind')}
+                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${ambience.wind.active ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100' : 'bg-black/20 border-white/5 text-stone-500 hover:text-stone-300'}`}
+                        >
+                          <Wind size={16} />
+                          <span className="text-[10px] uppercase tracking-widest font-bold">Wind</span>
+                        </button>
+                        <button 
+                          onClick={() => toggleAmbience('river')}
+                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${ambience.river.active ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100' : 'bg-black/20 border-white/5 text-stone-500 hover:text-stone-300'}`}
+                        >
+                          <Waves size={16} />
+                          <span className="text-[10px] uppercase tracking-widest font-bold">River</span>
+                        </button>
+                        <button 
+                          onClick={() => toggleAmbience('crickets')}
+                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${ambience.crickets.active ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100' : 'bg-black/20 border-white/5 text-stone-500 hover:text-stone-300'}`}
+                        >
+                          <Bug size={16} />
+                          <span className="text-[10px] uppercase tracking-widest font-bold">Crickets</span>
+                        </button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      )}
+      
+      {showInstruments && (
+          <div className="absolute bottom-36 left-4 sm:left-8 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 ring-1 ring-white/5">
+               <div className="flex justify-between items-center mb-8">
+                  <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold drop-shadow-lg">Tone Selection</h3>
+                  <button onClick={closePopups} className="text-white/50 hover:text-white transition-colors"><X size={20} /></button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                  {(['Suikin', 'Bamboo', 'Crystal', 'MusicBox', 'Ether', 'Deep'] as SoundType[]).map(type => (
+                      <button key={type} onClick={() => { setCurrentSoundType(type); closePopups(); }} className={`px-4 py-3 rounded-xl text-[10px] tracking-widest uppercase transition-all border ${currentSoundType === type ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100 shadow-sakura-900/20' : 'bg-black/20 border-white/5 text-stone-400 hover:text-white hover:bg-black/40'}`}>
+                          {type}
+                      </button>
+                  ))}
               </div>
           </div>
       )}

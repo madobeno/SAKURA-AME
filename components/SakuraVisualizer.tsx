@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import { RainDrop, Ripple, NoteParticle, Theme } from '../types';
 
@@ -40,21 +41,40 @@ const SakuraVisualizer: React.FC<Props> = ({ drops, ripples, particles, width, h
       ctx.stroke();
     });
 
-    // Draw Sakura Petals (Particles)
+    // Draw Particles (Sakura Petals, Stone Fragments, or Stars)
     particles.forEach(p => {
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rotation);
         ctx.globalAlpha = p.opacity;
-        ctx.fillStyle = theme.particleColor; // Pinkish
+        ctx.fillStyle = theme.particleColor;
         
-        // Draw a heart-like petal shape
         const scale = p.size;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.bezierCurveTo(scale/2, -scale/2, scale, -scale/2, 0, -scale);
-        ctx.bezierCurveTo(-scale, -scale/2, -scale/2, -scale/2, 0, 0);
-        ctx.fill();
+
+        if (theme.id === 'tsumugi') {
+            // Draw angular stone/pebble shape
+            ctx.beginPath();
+            ctx.moveTo(-scale / 2, -scale / 2);
+            ctx.lineTo(scale / 2, -scale / 3);
+            ctx.lineTo(scale / 3, scale / 2);
+            ctx.lineTo(-scale / 3, scale / 2.5);
+            ctx.closePath();
+            ctx.fill();
+        } else if (theme.id === 'night_garden') {
+            // Draw a small sparkling star (diamond/glowing circle)
+            ctx.beginPath();
+            ctx.arc(0, 0, scale / 4, 0, Math.PI * 2);
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = theme.particleColor;
+            ctx.fill();
+        } else {
+            // Draw a heart-like petal shape
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(scale/2, -scale/2, scale, -scale/2, 0, -scale);
+            ctx.bezierCurveTo(-scale, -scale/2, -scale/2, -scale/2, 0, 0);
+            ctx.fill();
+        }
         
         ctx.restore();
     });

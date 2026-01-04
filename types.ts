@@ -59,6 +59,7 @@ export interface Theme {
   rainColor: string;
   accentColor: string;
   particleColor: string;
+  overlayColor?: string; // Optional: Allows "white veil" or dark overlay
 }
 
 export type TimerPreset = {

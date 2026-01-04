@@ -11,6 +11,7 @@ const getPentagonPos = (index: number, isInverted: boolean, radius: number = 38)
   };
 };
 
+// 日本の伝統的な5音階（陽旋法/律音階ベース）に近い構成
 const leftDrumNotes = [
   { id: 'n_b3', name: 'B3', frequency: 246.94, label: 'B3', index: 0 },
   { id: 'n_g3', name: 'G3', frequency: 196.00, label: 'G3', index: 1 },
@@ -46,42 +47,46 @@ export const THEMES: Theme[] = [
   {
     id: 'sakura_day',
     name: '春の庭 (Spring Garden)',
-    bgGradient: 'from-stone-950 via-stone-900 to-stone-950',
+    bgGradient: 'from-stone-950 via-pink-950/20 to-stone-900',
     bgImage: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=2000&q=80',
     drumColor: 'rgba(255, 241, 242, 0.08)',
     rainColor: 'rgba(254, 202, 202, 0.8)',
     accentColor: '#f9a8d4',
-    particleColor: '#fbcfe8'
+    particleColor: '#fbcfe8',
+    overlayColor: 'rgba(0, 0, 0, 0.2)'
   },
   {
-    id: 'rainy_path',
-    name: '雨の小径 (Rainy Path)',
-    bgGradient: 'from-stone-950 via-green-900/10 to-stone-950',
-    bgImage: 'path.jpg',
-    drumColor: 'rgba(20, 40, 30, 0.3)', 
-    rainColor: 'rgba(186, 230, 253, 0.75)',
-    accentColor: '#4ade80', 
-    particleColor: '#bae6fd'
+    id: 'tsumugi',
+    name: 'つむぎ糸 (Tsumugi-ito)',
+    bgGradient: 'from-stone-800 via-stone-700/30 to-stone-900',
+    bgImage: 'https://images.unsplash.com/photo-1542044801-30d3e45ae49a?auto=format&fit=crop&w=2000&q=80',
+    drumColor: 'rgba(87, 83, 78, 0.25)',
+    rainColor: 'rgba(214, 211, 209, 0.6)',
+    accentColor: '#a8a29e',
+    particleColor: '#d6d3d1',
+    overlayColor: 'rgba(0, 0, 0, 0.15)'
   },
   {
-    id: 'lotus_pond',
-    name: '蓮池 (Lotus Pond)',
-    bgGradient: 'from-teal-950 via-stone-900 to-teal-950',
-    bgImage: 'https://raw.githubusercontent.com/madobeno/SAKURA-AME/main/public/%E8%93%AE%E6%B1%A0.jpg',
-    drumColor: 'rgba(20, 83, 45, 0.15)',
-    rainColor: 'rgba(167, 243, 208, 0.7)',
-    accentColor: '#4ade80',
-    particleColor: '#86efac'
+    id: 'night_garden',
+    name: '夜の庭 (Night Garden)',
+    bgGradient: 'from-slate-950 via-indigo-950/40 to-stone-950',
+    bgImage: 'https://images.unsplash.com/photo-1532767153582-b1a0e5145009?auto=format&fit=crop&w=2000&q=80',
+    drumColor: 'rgba(30, 27, 75, 0.3)',
+    rainColor: 'rgba(165, 180, 252, 0.5)',
+    accentColor: '#818cf8',
+    particleColor: '#fef9c3',
+    overlayColor: 'rgba(0, 0, 0, 0.4)'
   },
   {
-    id: 'bridge',
-    name: '朱橋 (Red Bridge)',
-    bgGradient: 'from-stone-950 via-red-950/10 to-stone-950',
-    bgImage: 'bridge.jpg',
-    drumColor: 'rgba(127, 29, 29, 0.15)', 
-    rainColor: 'rgba(254, 202, 202, 0.75)',
-    accentColor: '#f87171', 
-    particleColor: '#fca5a5'
+    id: 'old_capital',
+    name: '古都 (Old Capital)',
+    bgGradient: 'from-stone-950 via-orange-950/20 to-stone-900',
+    bgImage: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=2000&q=80',
+    drumColor: 'rgba(66, 32, 6, 0.25)', 
+    rainColor: 'rgba(254, 202, 202, 0.65)',
+    accentColor: '#fb923c', 
+    particleColor: '#fdba74',
+    overlayColor: 'rgba(0, 0, 0, 0.2)'
   }
 ];
 
