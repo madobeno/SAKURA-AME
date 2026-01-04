@@ -6,15 +6,21 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, ".", "");
 
   return {
-    base: "/SAKURA-AME/",
+    // リポジトリ名と完全に一致させる（大文字・小文字に注意！）
+    base: "/SAKURA-AME/", 
     plugins: [react()],
     define: {
       "process.env.GEMINI_API_KEY": JSON.stringify(env.GEMINI_API_KEY),
     },
     resolve: {
       alias: {
-        "@": path.resolve(__dirname, "."),
+        // ここを "./src" にするのが一般的やで
+        "@": path.resolve(__dirname, "./src"), 
       },
     },
+    // ビルド後のファイル出力先を明確にする
+    build: {
+      outDir: "dist",
+    }
   };
 });
