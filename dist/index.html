@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SakuraAme: Zen Rain</title>
+    <title>古都の雨: SakuraAme</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -30,11 +31,11 @@
             },
             animation: {
               'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'ripple-in': 'ripple-in 1s ease-out forwards',
+              'ripple-in': 'ripple-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
             },
             keyframes: {
               'ripple-in': {
-                '0%': { transform: 'scale(0.8)', opacity: '0' },
+                '0%': { transform: 'scale(0.95)', opacity: '0' },
                 '100%': { transform: 'scale(1)', opacity: '1' }
               }
             },
@@ -49,23 +50,24 @@
       @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700&display=swap');
       
       body {
-        background-color: #1c1917;
+        background-color: #121212;
         color: #fce7f3;
         overflow: hidden;
         font-family: 'Noto Serif JP', serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
+      
+      /* スクロールバー非表示 */
       
       ::-webkit-scrollbar {
-        width: 6px;
+        display: none;
       }
       
-      ::-webkit-scrollbar-track {
-        background: #292524; 
-      }
+      /* 画像が読み込まれるまでのスムーズな遷移 */
       
-      ::-webkit-scrollbar-thumb {
-        background: #44403c; 
-        border-radius: 3px;
+      .bg-transition {
+        transition: opacity 1s ease-in-out, filter 1s ease-in-out;
       }
     </style>
 
@@ -82,7 +84,7 @@
       }
     }
     </script>
-  <script type="module" crossorigin src="/assets/index-D8AL-0wR.js"></script>
+  <script type="module" crossorigin src="/SAKURA-AME/assets/index-GzTHh_Ba.js"></script>
 </head>
   <body>
     <div id="root"></div>
