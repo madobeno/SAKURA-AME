@@ -20,55 +20,71 @@ const SakuraVisualizer: React.FC<Props> = ({ drops, ripples, particles, width, h
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Clear
     ctx.clearRect(0, 0, width, height);
 
     // Draw Drops
     ctx.fillStyle = theme.rainColor;
     drops.forEach(drop => {
       ctx.beginPath();
-      // Rain is a thin line
-      ctx.rect(drop.x, drop.y, 1, Math.min(drop.speed * 1.5, 20)); 
+      ctx.rect(drop.x, drop.y, 1.2, Math.min(drop.speed * 1.8, 25)); 
       ctx.fill();
     });
 
-    // Draw Ripples (Impact rings)
-    ctx.lineWidth = 1.5;
+    // Draw Ripples
+    ctx.lineWidth = 1.0;
     ripples.forEach(ripple => {
-      ctx.strokeStyle = `rgba(255, 255, 255, ${ripple.opacity})`;
+      ctx.strokeStyle = `rgba(255, 255, 255, ${ripple.opacity * 0.6})`;
       ctx.beginPath();
-      ctx.ellipse(ripple.x, ripple.y, ripple.size, ripple.size * 0.3, 0, 0, Math.PI * 2);
+      ctx.ellipse(ripple.x, ripple.y, ripple.size, ripple.size * 0.35, 0, 0, Math.PI * 2);
       ctx.stroke();
     });
 
-    // Draw Particles (Sakura Petals, Stone Fragments, or Stars)
+    // Draw Theme-Specific Particles
     particles.forEach(p => {
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rotation);
         ctx.globalAlpha = p.opacity;
-        ctx.fillStyle = theme.particleColor;
+        ctx.fillStyle = p.color;
         
         const scale = p.size;
 
-        if (theme.id === 'tsumugi') {
-            // Draw angular stone/pebble shape
+        if (theme.id === 'sakura_night') {
+            // Glowing crystals for Night Sakura theme
             ctx.beginPath();
-            ctx.moveTo(-scale / 2, -scale / 2);
-            ctx.lineTo(scale / 2, -scale / 3);
-            ctx.lineTo(scale / 3, scale / 2);
-            ctx.lineTo(-scale / 3, scale / 2.5);
+            const sides = 6;
+            for(let i=0; i<sides; i++) {
+                const angle = (i * Math.PI * 2) / sides;
+                const r = i % 2 === 0 ? scale : scale / 2;
+                ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+            }
             ctx.closePath();
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#fff';
             ctx.fill();
         } else if (theme.id === 'night_garden') {
-            // Draw a small sparkling star (diamond/glowing circle)
+            // Soft floating orbs (fireflies)
             ctx.beginPath();
-            ctx.arc(0, 0, scale / 4, 0, Math.PI * 2);
-            ctx.shadowBlur = 10;
+            ctx.arc(0, 0, scale / 2, 0, Math.PI * 2);
+            ctx.shadowBlur = 12;
             ctx.shadowColor = theme.particleColor;
             ctx.fill();
+        } else if (theme.id === 'old_capital') {
+            // Golden dust / Autumn leaves (simple diamond)
+            ctx.beginPath();
+            ctx.moveTo(0, -scale);
+            ctx.lineTo(scale * 0.6, 0);
+            ctx.lineTo(0, scale);
+            ctx.lineTo(-scale * 0.6, 0);
+            ctx.closePath();
+            ctx.fill();
+        } else if (theme.id === 'tsumugi') {
+            // Minimal stone/thread shards
+            ctx.beginPath();
+            ctx.rect(-scale/2, -scale/2, scale, scale/4);
+            ctx.fill();
         } else {
-            // Draw a heart-like petal shape
+            // Classic Sakura Petal
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.bezierCurveTo(scale/2, -scale/2, scale, -scale/2, 0, -scale);

@@ -10,10 +10,19 @@ import {
   Sparkles,
   Music,
   Bird,
-  CloudRain,
   Wind,
   Waves,
-  Bug
+  Bug,
+  Bell,
+  Lock,
+  Crown,
+  Play,
+  Pause,
+  CloudRain,
+  CloudSun,
+  Wind as WindIcon,
+  CloudLightning,
+  Trash2
 } from 'lucide-react';
 import { 
   Note, 
@@ -35,6 +44,86 @@ import {
 import { audioEngine } from './services/audioEngine';
 import SakuraVisualizer from './components/SakuraVisualizer';
 
+interface SongStep {
+    noteId: string;
+    delay: number;
+}
+
+const SONGS: Record<string, { name: string, steps: SongStep[], isPremium?: boolean }> = {
+    sakura: {
+        name: 'さくらさくら',
+        steps: [
+            { noteId: 'n_a3', delay: 800 }, { noteId: 'n_a3', delay: 800 }, { noteId: 'n_b3', delay: 1600 },
+            { noteId: 'n_a3', delay: 800 }, { noteId: 'n_a3', delay: 800 }, { noteId: 'n_b3', delay: 1600 },
+            { noteId: 'n_a3', delay: 400 }, { noteId: 'n_b3', delay: 400 }, { noteId: 'n_d4', delay: 400 }, { noteId: 'n_b3', delay: 400 }, { noteId: 'n_a3', delay: 400 }, { noteId: 'n_b3', delay: 400 }, { noteId: 'n_a3', delay: 800 },
+            { noteId: 'n_g3', delay: 800 }, { noteId: 'n_e3', delay: 800 }, { noteId: 'n_d3', delay: 1600 },
+        ]
+    },
+    haru: {
+        name: '春の調べ',
+        isPremium: true,
+        steps: [
+            { noteId: 'n_d3', delay: 300 }, { noteId: 'n_e3', delay: 300 }, { noteId: 'n_g3', delay: 300 }, { noteId: 'n_a3', delay: 300 }, { noteId: 'n_b3', delay: 600 },
+            { noteId: 'n_d4', delay: 300 }, { noteId: 'n_b3', delay: 300 }, { noteId: 'n_a3', delay: 300 }, { noteId: 'n_g3', delay: 300 }, { noteId: 'n_e3', delay: 600 },
+            { noteId: 'n_g4', delay: 400 }, { noteId: 'n_a4', delay: 400 }, { noteId: 'n_b4', delay: 800 },
+            { noteId: 'n_a4', delay: 400 }, { noteId: 'n_g4', delay: 400 }, { noteId: 'n_e4', delay: 800 },
+        ]
+    },
+    tsuki: {
+        name: '月夜の川',
+        isPremium: true,
+        steps: [
+            { noteId: 'n_d3', delay: 1200 }, { noteId: 'n_a3', delay: 1200 }, { noteId: 'n_d4', delay: 2400 },
+            { noteId: 'n_e3', delay: 1200 }, { noteId: 'n_b3', delay: 1200 }, { noteId: 'n_e4', delay: 2400 },
+            { noteId: 'n_g3', delay: 1200 }, { noteId: 'n_d4', delay: 1200 }, { noteId: 'n_g4', delay: 2400 },
+        ]
+    },
+    fubuki: {
+        name: '花吹雪',
+        isPremium: true,
+        steps: [
+            { noteId: 'n_a4', delay: 200 }, { noteId: 'n_b4', delay: 200 }, { noteId: 'n_d4', delay: 400 },
+            { noteId: 'n_a4', delay: 200 }, { noteId: 'n_b4', delay: 200 }, { noteId: 'n_d4', delay: 400 },
+            { noteId: 'n_g4', delay: 200 }, { noteId: 'n_e4', delay: 200 }, { noteId: 'n_d4', delay: 400 },
+            { noteId: 'n_g3', delay: 200 }, { noteId: 'n_a3', delay: 200 }, { noteId: 'n_d3', delay: 800 },
+        ]
+    }
+};
+
+interface SoundPreset {
+    name: string;
+    density: number;
+    icon: React.ReactNode;
+    ambience: Partial<Record<AmbienceType, boolean>>;
+}
+
+const SOUND_PRESETS: Record<string, SoundPreset> = {
+    fox: { 
+        name: '狐の嫁入り', 
+        density: 0.15, 
+        icon: <CloudSun size={14} />,
+        ambience: { rain: true, wind: true, windChime: true, birds: false, river: false, crickets: false, broom: false }
+    },
+    shower: { 
+        name: '花時雨', 
+        density: 0.4, 
+        icon: <CloudRain size={14} />,
+        ambience: { rain: true, birds: true, broom: true, river: false, wind: false, crickets: false, windChime: false }
+    },
+    scatter: { 
+        name: '花散らし', 
+        density: 0.6, 
+        icon: <WindIcon size={14} />,
+        ambience: { rain: true, wind: true, river: false, broom: false, birds: false, crickets: false, windChime: false }
+    },
+    storm: { 
+        name: '春の嵐', 
+        density: 0.9, 
+        icon: <CloudLightning size={14} />,
+        ambience: { rain: true, wind: true, crickets: true, river: true, birds: false, broom: false, windChime: false }
+    }
+};
+
 const App: React.FC = () => {
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [hasStarted, setHasStarted] = useState(false);
@@ -42,12 +131,19 @@ const App: React.FC = () => {
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const [particles, setParticles] = useState<NoteParticle[]>([]);
   const [isMuted, setIsMuted] = useState(false);
+  
   const [showMixer, setShowMixer] = useState(false);
   const [showThemes, setShowThemes] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
   const [showInstruments, setShowInstruments] = useState(false);
-  const [activeNote, setActiveNote] = useState<string | null>(null);
+  const [showEisho, setShowEisho] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  
+  const [isPremium, setIsPremium] = useState<boolean>(() => {
+    return localStorage.getItem('sakura_ame_premium') === 'true';
+  });
 
+  const [activeNote, setActiveNote] = useState<string | null>(null);
   const [masterVolume, setMasterVolume] = useState(0.7);
   const [currentSoundType, setCurrentSoundType] = useState<SoundType>('Suikin');
   const currentSoundTypeRef = useRef<SoundType>('Suikin'); 
@@ -57,12 +153,20 @@ const App: React.FC = () => {
   const [isTimerFinished, setIsTimerFinished] = useState(false);
   const [isShishiodoshiTilting, setIsShishiodoshiTilting] = useState(false);
 
+  // Eisho Mode (Auto Play) States
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const [currentSongKey, setCurrentSongKey] = useState<string>('sakura');
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const autoPlayTimeoutRef = useRef<number | null>(null);
+
   const [ambience, setAmbience] = useState<Record<AmbienceType, AmbienceConfig>>({
       rain: { active: true, volume: 0.3 }, 
       wind: { active: false, volume: 0.3 },
       birds: { active: false, volume: 0.3 },
       river: { active: false, volume: 0.4 },
       crickets: { active: false, volume: 0.2 },
+      windChime: { active: false, volume: 0.2, isPremium: true },
+      broom: { active: false, volume: 0.4, isPremium: true }, 
   });
 
   const [rainDensity, setRainDensity] = useState<number>(0.15);
@@ -86,11 +190,7 @@ const App: React.FC = () => {
         interval = window.setInterval(() => {
             setTimerRemaining(prev => {
                 if (prev === null) return null;
-                
-                if (prev === 11) {
-                  audioEngine.fadeOutMaster(10);
-                }
-
+                if (prev === 11) audioEngine.fadeOutMaster(10);
                 if (prev <= 1) {
                     finishTimer();
                     return 0;
@@ -113,12 +213,12 @@ const App: React.FC = () => {
   const finishTimer = () => {
       setTimerRemaining(0);
       setDrops([]); 
-      
+      setIsAutoPlaying(false);
       setIsShishiodoshiTilting(true);
       setTimeout(() => {
           setIsShishiodoshiTilting(false); 
           audioEngine.playShishiodoshi(); 
-          triggerVisualRipple(dimensions.width / 2, dimensions.height * 0.25, '#fff', 50);
+          triggerVisualRipple(dimensions.width / 2, dimensions.height / 2, '#fff', 200);
       }, 1500); 
       
       setTimeout(() => {
@@ -149,6 +249,11 @@ const App: React.FC = () => {
   };
 
   const toggleAmbience = (type: AmbienceType) => {
+    if (ambience[type].isPremium && !isPremium) {
+        setShowPremiumModal(true);
+        closePopups();
+        return;
+    }
     const nextActive = !ambience[type].active;
     const nextAmbience = {
       ...ambience,
@@ -158,13 +263,52 @@ const App: React.FC = () => {
     audioEngine.setAmbience(type, nextActive, ambience[type].volume);
   };
 
+  const applySoundPreset = (key: string) => {
+      const preset = SOUND_PRESETS[key];
+      if (!preset) return;
+
+      const newAmbience = { ...ambience };
+      (Object.keys(newAmbience) as AmbienceType[]).forEach(type => {
+          const isActive = preset.ambience[type] ?? false;
+          // Check premium requirements for specific sounds
+          if (newAmbience[type].isPremium && !isPremium && isActive) {
+              newAmbience[type].active = false;
+          } else {
+              newAmbience[type].active = isActive;
+          }
+          audioEngine.setAmbience(type, newAmbience[type].active, newAmbience[type].volume);
+      });
+
+      setAmbience(newAmbience);
+      setRainDensity(preset.density);
+      triggerVisualRipple(dimensions.width / 2, dimensions.height - 100, currentTheme.accentColor, 100);
+  };
+
+  const selectTheme = (theme: Theme) => {
+      if (theme.isPremium && !isPremium) {
+          setShowPremiumModal(true);
+          closePopups();
+          return;
+      }
+      setCurrentTheme(theme);
+      closePopups();
+  };
+
+  const handlePurchase = () => {
+      setIsPremium(true);
+      localStorage.setItem('sakura_ame_premium', 'true');
+      setShowPremiumModal(false);
+      triggerVisualRipple(dimensions.width/2, dimensions.height/2, '#FFD700', 300);
+  };
+
   const handleHit = useCallback((noteId: string, x: number, y: number) => {
     const note = NOTES.find(n => n.id === noteId);
     if (note && !isMuted) {
       audioEngine.playTone(note.frequency, currentSoundTypeRef.current);
       
       const burst: NoteParticle[] = [];
-      for (let i = 0; i < 5; i++) {
+      const pCount = 6;
+      for (let i = 0; i < pCount; i++) {
         burst.push({
           id: Math.random().toString(36),
           x: x,
@@ -172,23 +316,24 @@ const App: React.FC = () => {
           rotation: Math.random() * Math.PI * 2,
           opacity: 1,
           velocity: {
-              x: (Math.random() - 0.5) * 2,
-              y: -1 - Math.random()
+              x: (Math.random() - 0.5) * 4,
+              y: -1.5 - Math.random() * 2
           },
           color: currentTheme.particleColor,
-          size: 8 + Math.random() * 8
+          size: 6 + Math.random() * 8
         });
       }
       setParticles(prev => [...prev, ...burst]);
     }
-
     triggerVisualRipple(x, y, currentTheme.accentColor, 10);
   }, [isMuted, currentTheme]); 
 
   const spawnDrop = (noteId: string) => {
-    if (isTimerFinished) return;
+    // CRITICAL: Strict visibility check
+    if (isTimerFinished || document.hidden) return;
+    
     setActiveNote(noteId);
-    setTimeout(() => setActiveNote(null), 150);
+    setTimeout(() => setActiveNote(null), 300); 
 
     const note = NOTES.find(n => n.id === noteId);
     if (!note) return;
@@ -208,8 +353,44 @@ const App: React.FC = () => {
     }]);
   };
 
+  // Auto Play Logic
+  useEffect(() => {
+    // If not playing, ensure timer is cleared and exit
+    if (!isAutoPlaying || isTimerFinished) {
+        if (autoPlayTimeoutRef.current) {
+            window.clearTimeout(autoPlayTimeoutRef.current);
+            autoPlayTimeoutRef.current = null;
+        }
+        return;
+    }
+
+    const song = SONGS[currentSongKey];
+    const step = song.steps[currentStepIndex];
+
+    if (!document.hidden) {
+      spawnDrop(step.noteId);
+    }
+
+    // Schedule next step
+    autoPlayTimeoutRef.current = window.setTimeout(() => {
+        if (isAutoPlaying) {
+            setCurrentStepIndex(prev => (prev + 1) % song.steps.length);
+        }
+    }, step.delay);
+
+    return () => {
+        if (autoPlayTimeoutRef.current) {
+            window.clearTimeout(autoPlayTimeoutRef.current);
+        }
+    };
+  }, [isAutoPlaying, currentSongKey, currentStepIndex, isTimerFinished]);
+
   const animate = (time: number) => {
-    if (isTimerFinished) return; 
+    // CRITICAL: Stop all physics if invisible
+    if (isTimerFinished || document.hidden) {
+      requestRef.current = requestAnimationFrame(animate);
+      return;
+    }
 
     setDrops(prevDrops => {
       const nextDrops: RainDrop[] = [];
@@ -225,69 +406,106 @@ const App: React.FC = () => {
     });
 
     setRipples(prevRipples => prevRipples.map(r => ({
-        ...r, size: r.size + (r.size > 30 ? 0.8 : 0.5), opacity: r.opacity - (r.size > 30 ? 0.01 : 0.02)
+        ...r, size: r.size + (r.size > 50 ? 1.5 : 1.2), 
+        opacity: r.opacity - 0.006
     })).filter(r => r.opacity > 0));
 
     setParticles(prev => prev.map(p => ({
         ...p,
-        x: p.x + p.velocity.x + Math.sin(time / 500) * 0.5,
-        y: p.y + p.velocity.y + 0.5,
+        x: p.x + p.velocity.x,
+        y: p.y + p.velocity.y + 0.15,
         rotation: p.rotation + 0.02,
-        opacity: p.opacity - 0.01
+        opacity: p.opacity - 0.009
     })).filter(p => p.opacity > 0));
 
     requestRef.current = requestAnimationFrame(animate);
   };
 
   useEffect(() => {
-    if (hasStarted && !isTimerFinished) requestRef.current = requestAnimationFrame(animate);
+    if (hasStarted) requestRef.current = requestAnimationFrame(animate);
     return () => { if (requestRef.current) cancelAnimationFrame(requestRef.current); }
-  }, [hasStarted, isTimerFinished, dimensions, currentTheme]);
+  }, [hasStarted, dimensions]);
 
   useEffect(() => {
-    if (!hasStarted || isTimerFinished || rainDensity === 0) return;
-    const intervalTime = Math.max(150, 2000 - (rainDensity * 1800));
+    if (!hasStarted || isTimerFinished || rainDensity === 0 || isAutoPlaying) return;
+    const intervalTime = Math.max(250, 2200 - (rainDensity * 1800)); 
     const timer = setInterval(() => {
       if (document.hidden) return;
       const randomNote = NOTES[Math.floor(Math.random() * NOTES.length)];
       spawnDrop(randomNote.id);
     }, intervalTime);
     return () => clearInterval(timer);
-  }, [hasStarted, isTimerFinished, rainDensity]);
+  }, [hasStarted, isTimerFinished, rainDensity, isAutoPlaying]);
 
   const closePopups = () => {
       setShowMixer(false);
       setShowThemes(false);
       setShowTimer(false);
       setShowInstruments(false);
+      setShowEisho(false);
+      setShowPremiumModal(false);
   };
 
   const resetExperience = () => {
       setIsTimerFinished(false);
       setTimerRemaining(null);
       setTimerTotal(null);
+      setIsAutoPlaying(false);
       audioEngine.setMasterVolume(masterVolume);
       setDrops([]);
       setParticles([]);
       setRipples([]);
   };
 
+  const handleMainPlayButton = () => {
+      if (isAutoPlaying) {
+          setIsAutoPlaying(false);
+      } else {
+          closePopups();
+          setShowEisho(!showEisho);
+      }
+  };
+
+  const selectSong = (key: string) => {
+      const song = SONGS[key];
+      if (song.isPremium && !isPremium) {
+          setShowPremiumModal(true);
+          closePopups();
+          return;
+      }
+      setCurrentSongKey(key);
+      setCurrentStepIndex(0);
+      setIsAutoPlaying(true);
+      setShowEisho(false); 
+  };
+
+  const selectInstrument = (type: SoundType) => {
+      const premiumInstruments: SoundType[] = ['Crystal', 'MusicBox', 'Ether', 'Deep'];
+      if (premiumInstruments.includes(type) && !isPremium) {
+          setShowPremiumModal(true);
+          closePopups();
+          return;
+      }
+      setCurrentSoundType(type);
+      closePopups();
+  };
+
   if (!hasStarted) {
     return (
       <div className="flex flex-col items-center justify-center h-screen w-full bg-stone-950 text-sakura-100 relative overflow-hidden" onClick={startExperience}>
-        <div className="absolute inset-0 z-0 opacity-100 transition-all duration-1000">
+        <div className="absolute inset-0 z-0">
           <img 
             src="https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=2000&q=80" 
-            className="w-full h-full object-cover" 
+            className="w-full h-full object-cover scale-110 blur-[2px]" 
             alt="Spring Garden"
           />
         </div>
         <div className="absolute inset-0 bg-black/50 z-0"></div>
-        <div className="z-10 text-center space-y-8 p-12 max-w-lg bg-stone-950/20 backdrop-blur-xl rounded-3xl border border-white/5 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] mx-4 animate-ripple-in">
+        <div className="z-10 text-center space-y-8 p-12 max-w-lg bg-stone-950/20 backdrop-blur-3xl rounded-3xl border border-white/5 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] mx-4 animate-ripple-in">
           <h1 className="text-8xl font-serif tracking-[0.4em] text-white mb-2 drop-shadow-[0_15px_15px_rgba(0,0,0,0.9)]">桜雨</h1>
           <h2 className="text-xl font-light tracking-[0.3em] text-sakura-100/90 uppercase drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">Sakura Ame</h2>
           <div className="w-24 h-[1.5px] bg-white/40 mx-auto my-6 shadow-2xl"></div>
-          <p className="text-sm font-serif text-white/80 italic drop-shadow-lg tracking-widest">Zen garden with RainDrum.</p>
+          <p className="text-sm font-serif text-white/80 italic drop-shadow-lg tracking-widest">Zen Healing Experience.</p>
           <div className="mt-8 p-4 px-14 border border-white/30 bg-white/5 rounded-full text-xs text-white hover:bg-white/10 hover:border-white/50 transition-all cursor-pointer backdrop-blur-md shadow-2xl font-bold tracking-[0.4em] uppercase">
             Start Experience
           </div>
@@ -303,33 +521,39 @@ const App: React.FC = () => {
 
   return (
     <div className={`relative h-screen w-full bg-stone-950 overflow-hidden font-serif select-none transition-colors duration-1000`} onMouseDown={handleInteraction} onTouchStart={handleInteraction}>
-      {/* Background Layer */}
-      <div key={currentTheme.id} className={`absolute inset-0 opacity-100 pointer-events-none transition-opacity duration-1000 z-0 bg-gradient-to-b ${currentTheme.bgGradient}`}>
-         <img 
-            src={currentTheme.bgImage} 
-            className="w-full h-full object-cover transition-opacity duration-1000" 
-            alt={currentTheme.name}
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.opacity = '0';
-            }}
-         />
-      </div>
       
-      {/* Overlay Veil Layer (Dynamic color for white/dark veils) */}
-      <div 
-        className="absolute inset-0 pointer-events-none z-10 transition-colors duration-1000"
-        style={{ backgroundColor: currentTheme.overlayColor || 'rgba(0, 0, 0, 0.2)' }}
-      ></div>
+      {/* BACKGROUND STACK SYSTEM */}
+      <div className="absolute inset-0 z-0 overflow-hidden bg-black">
+        {THEMES.map((theme) => (
+          <div 
+            key={theme.id} 
+            className={`absolute inset-0 transition-opacity duration-[1500ms] pointer-events-none ${currentTheme.id === theme.id ? 'opacity-100' : 'opacity-0'}`}
+          >
+            <img 
+              src={theme.bgImage} 
+              className="w-full h-full object-cover scale-[1.02]" 
+              alt={theme.name}
+              loading="eager"
+            />
+            <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} mix-blend-multiply opacity-80`}></div>
+            <div className="absolute inset-0" style={{ backgroundColor: theme.overlayColor }}></div>
+          </div>
+        ))}
+      </div>
       
       <SakuraVisualizer drops={drops} ripples={ripples} particles={particles} width={dimensions.width} height={dimensions.height} theme={currentTheme} />
 
       {isTimerFinished && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg animate-in fade-in duration-1000">
-              <div className="text-center space-y-6">
-                  <div className="text-7xl animate-bounce">🎋</div>
-                  <h2 className="text-4xl text-white font-serif tracking-[0.5em] drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">静寂</h2>
-                  <p className="text-stone-400 tracking-widest text-xs uppercase">The silence follows the rain.</p>
-                  <button onClick={resetExperience} className="mt-8 px-12 py-4 border border-white/20 rounded-full text-white hover:text-white hover:border-white hover:bg-white/5 transition-all text-[10px] uppercase tracking-[0.3em] bg-white/5 backdrop-blur-md shadow-3xl">Return to Garden</button>
+              <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
+                  <div className="w-96 h-96 rounded-full border border-white/10 animate-ripple-out"></div>
+                  <div className="w-96 h-96 rounded-full border border-white/10 animate-ripple-out delay-700"></div>
+                  <div className="w-96 h-96 rounded-full border border-white/10 animate-ripple-out delay-1000"></div>
+              </div>
+              <div className="text-center space-y-6 relative z-10">
+                  <h2 className="text-6xl text-white font-serif tracking-[0.6em] drop-shadow-[0_0_20px_rgba(255,255,255,0.4)] animate-pulse">静寂</h2>
+                  <p className="text-stone-400 tracking-widest text-xs uppercase">Silence dwells within the ripple.</p>
+                  <button onClick={resetExperience} className="mt-12 px-12 py-4 border border-white/20 rounded-full text-white hover:text-white hover:border-white hover:bg-white/5 transition-all text-[10px] uppercase tracking-[0.3em] bg-white/5 backdrop-blur-md shadow-3xl">Return to Garden</button>
               </div>
           </div>
       )}
@@ -360,110 +584,107 @@ const App: React.FC = () => {
           </button>
       </div>
 
+      {/* Auto Play Controller */}
+      <div className="absolute bottom-12 right-8 z-40 flex flex-col items-end gap-5">
+          {showEisho && (
+              <div className="mb-2 bg-stone-950/20 backdrop-blur-3xl border border-white/10 rounded-3xl p-6 w-56 animate-in slide-in-from-right-4 shadow-[0_15px_35px_rgba(0,0,0,0.5)]">
+                  <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                      <h3 className="text-white font-serif text-[10px] tracking-[0.3em] uppercase font-bold">詠唱選択</h3>
+                      <button onClick={closePopups} className="text-white/50 hover:text-white transition-colors">
+                          <X size={16} />
+                      </button>
+                  </div>
+                  <div className="space-y-1">
+                      {Object.entries(SONGS).map(([key, song]) => (
+                          <button key={key} onClick={() => selectSong(key)} className={`w-full flex justify-between items-center px-4 py-3 rounded-xl text-[10px] tracking-widest uppercase transition-all ${currentSongKey === key && isAutoPlaying ? 'bg-sakura-500/40 text-sakura-100 border border-sakura-300/30' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
+                              <span>{song.name}</span>
+                              {song.isPremium && !isPremium && <Lock size={12} className="text-yellow-400/70" />}
+                          </button>
+                      ))}
+                  </div>
+              </div>
+          )}
+          <button onClick={handleMainPlayButton} className={`p-5 rounded-full border transition-all backdrop-blur-3xl shadow-[0_15px_35px_-5px_rgba(0,0,0,0.6)] ${isAutoPlaying ? 'bg-sakura-500/30 border-sakura-400 text-sakura-100 shadow-[0_0_20px_rgba(236,72,153,0.3)] animate-pulse' : 'bg-black/5 border-white/10 text-white hover:bg-black/15'}`}>
+             {isAutoPlaying ? <Pause size={24} /> : <Play size={24} />}
+          </button>
+      </div>
+
+      {!isPremium && (
+          <div className="absolute top-8 left-8 z-40">
+              <button onClick={() => setShowPremiumModal(true)} className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-amber-200/20 to-yellow-500/20 backdrop-blur-md rounded-full border border-yellow-500/30 text-yellow-200 text-xs font-bold tracking-widest uppercase hover:bg-yellow-500/30 transition-all shadow-[0_0_15px_rgba(255,215,0,0.2)] animate-pulse-slow">
+                  <Crown size={14} />
+                  <span>Full Version</span>
+              </button>
+          </div>
+      )}
+
       {/* Shishiodoshi HUD */}
       {timerRemaining !== null && !isTimerFinished && (
           <div className="absolute top-2 sm:top-12 left-1/2 transform -translate-x-1/2 z-40 flex flex-col items-center gap-2 sm:gap-8 scale-[0.4] sm:scale-100 origin-top transition-transform">
               <div className="relative">
-                  {/* 水のしずくアニメーション */}
-                  <div className="absolute top-[-40px] left-1/2 -translate-x-1/2 w-[2px] h-32 bg-sky-200/30 blur-[1px] opacity-60 animate-pulse transition-opacity duration-1000 overflow-hidden">
-                     <div className="w-full h-1/2 bg-sky-100/50 animate-bounce"></div>
-                  </div>
-                  
-                  {/* 竹の本体 */}
                   <div className={`relative w-14 h-64 transition-transform duration-[1500ms] ease-in-out origin-center ${isShishiodoshiTilting ? 'rotate-[110deg]' : 'rotate-0'}`}>
-                      {/* 竹筒のメインボディ */}
                       <div className="absolute inset-0 rounded-full border-r border-white/10 border-b border-black/30 shadow-[0_0_40px_rgba(0,0,0,0.6)] overflow-hidden bg-gradient-to-r from-emerald-900/40 via-emerald-700/40 to-emerald-950/40 backdrop-blur-2xl">
-                          {/* 縦のハイライト（竹の光沢） */}
-                          <div className="absolute inset-y-0 left-1/4 w-[2px] bg-white/5 blur-[1px]"></div>
-                          
-                          {/* 竹の節（ふし） */}
-                          <div className="absolute top-1/4 left-0 w-full h-[1px] bg-black/40 shadow-[0_1px_2px_rgba(255,255,255,0.05)]"></div>
-                          <div className="absolute top-1/2 left-0 w-full h-[1px] bg-black/40 shadow-[0_1px_2px_rgba(255,255,255,0.05)]"></div>
-                          <div className="absolute top-3/4 left-0 w-full h-[1px] bg-black/40 shadow-[0_1px_2px_rgba(255,255,255,0.05)]"></div>
-
-                          {/* 溜まっている水 */}
                           <div 
-                            className="absolute bottom-0 left-0 w-full bg-sky-400/20 transition-all duration-1000 ease-linear shadow-[inset_0_2px_10px_rgba(255,255,255,0.1)]"
+                            className="absolute bottom-0 left-0 w-full bg-sky-400/20 transition-all duration-1000 ease-linear"
                             style={{ height: `${((timerTotal! - timerRemaining) / timerTotal!) * 100}%` }}
-                          >
-                             {/* 水面の輝き */}
-                             <div className="w-full h-[1px] bg-white/40 blur-[1px] animate-pulse"></div>
-                          </div>
+                          ></div>
                       </div>
-                      
-                      {/* 支柱（ピボット軸） */}
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-2 bg-stone-800 rounded-full -z-10 shadow-lg border-b border-white/5"></div>
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-2 bg-stone-800 rounded-full -z-10"></div>
                   </div>
-                  
-                  {/* 接地部分の影 */}
-                  <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-32 h-6 bg-black/40 rounded-full -z-20 blur-[8px]"></div>
               </div>
-              
               <div className="flex flex-col items-center mt-4">
-                <span className="text-xl font-serif text-white tracking-[0.3em] bg-emerald-950/30 border border-white/10 px-10 py-3 rounded-full shadow-3xl backdrop-blur-3xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
+                <span className="text-xl font-serif text-white tracking-[0.3em] bg-emerald-950/30 border border-white/10 px-10 py-3 rounded-full shadow-3xl backdrop-blur-3xl">
                     {Math.floor(timerRemaining / 60)}:{String(timerRemaining % 60).padStart(2, '0')}
                 </span>
-                <span className="text-[10px] mt-4 text-emerald-100/70 uppercase tracking-[0.5em] drop-shadow-[0_2px_5px_rgba(0,0,0,1)] font-bold">Shishiodoshi</span>
               </div>
           </div>
       )}
 
-      {/* RainDrums Positioning */}
-      <div className="absolute w-full h-full pointer-events-none z-30">
+      {/* RainDrums */}
+      <div className="absolute w-full h-full pointer-events-none z-30 animate-wa-float">
          <div className="absolute" style={{ left: '32%', top: `${PAD_Y_PERCENT}%`, width: drumSize, height: drumSize, transform: 'translate(-50%, -50%)' }}>
-             <div className="absolute inset-0 rounded-full border border-white/10 backdrop-blur-2xl shadow-[0_0_200px_rgba(0,0,0,0.95)]" style={{ backgroundColor: currentTheme.drumColor }}></div>
+             <div className="absolute inset-0 rounded-full border border-white/10 backdrop-blur-2xl" style={{ backgroundColor: currentTheme.drumColor }}></div>
              {NOTES.filter(n => n.drumIndex === 0).map((note) => (
                  <DrumButton key={note.id} note={note} activeNote={activeNote} spawnDrop={spawnDrop} />
              ))}
          </div>
          <div className="absolute" style={{ left: '68%', top: `${PAD_Y_PERCENT}%`, width: drumSize, height: drumSize, transform: 'translate(-50%, -50%)' }}>
-             <div className="absolute inset-0 rounded-full border border-white/10 backdrop-blur-2xl shadow-[0_0_200px_rgba(0,0,0,0.95)]" style={{ backgroundColor: currentTheme.drumColor }}></div>
+             <div className="absolute inset-0 rounded-full border border-white/10 backdrop-blur-2xl" style={{ backgroundColor: currentTheme.drumColor }}></div>
              {NOTES.filter(n => n.drumIndex === 1).map((note) => (
                  <DrumButton key={note.id} note={note} activeNote={activeNote} spawnDrop={spawnDrop} />
              ))}
          </div>
       </div>
 
+      {/* Popups */}
       {showTimer && (
-          <div className="absolute top-24 right-4 sm:right-24 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in zoom-in-95 ring-1 ring-white/5">
+          <div className="absolute top-24 right-4 sm:right-24 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 animate-in zoom-in-95">
               <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
-                  <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold drop-shadow-lg">Zen Meditation</h3>
+                  <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold">Zen Meditation</h3>
                   <button onClick={closePopups} className="text-white/50 hover:text-white transition-colors"><X size={20} /></button>
               </div>
               <div className="space-y-3">
                   {SHISHIODOSHI_PRESETS.map((preset) => (
-                      <button 
-                        key={preset.label}
-                        onClick={() => {
-                            setTimerTotal(preset.minutes * 60);
-                            setTimerRemaining(preset.minutes * 60);
-                            setIsTimerFinished(false);
-                            closePopups();
-                        }}
-                        className="w-full flex items-center justify-between p-5 rounded-2xl bg-black/40 hover:bg-black/60 border border-transparent hover:border-white/20 transition-all text-left group shadow-xl"
-                      >
-                          <span className="text-sm font-serif text-stone-100 group-hover:text-sakura-200 transition-colors drop-shadow-md">{preset.label}</span>
-                          <span className="text-2xl opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all drop-shadow-xl">{preset.icon}</span>
+                      <button key={preset.label} onClick={() => { setTimerTotal(preset.minutes * 60); setTimerRemaining(preset.minutes * 60); setIsTimerFinished(false); closePopups(); }} className="w-full flex items-center justify-between p-5 rounded-2xl bg-black/40 hover:bg-black/60 transition-all shadow-xl">
+                          <span className="text-sm font-serif text-stone-100">{preset.label}</span>
+                          <span className="text-2xl opacity-60">{preset.icon}</span>
                       </button>
                   ))}
-                  {timerRemaining !== null && (
-                      <button onClick={() => { setTimerRemaining(null); setTimerTotal(null); closePopups(); }} className="w-full mt-6 py-3 text-[10px] uppercase font-bold text-red-400 hover:text-red-300 transition-colors drop-shadow-xl tracking-[0.3em]">Cancel Shishiodoshi</button>
-                  )}
               </div>
           </div>
       )}
 
       {showThemes && (
-          <div className="absolute bottom-36 left-4 sm:left-8 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 ring-1 ring-white/5">
-              <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold drop-shadow-lg">Atmosphere</h3>
+          <div className="absolute bottom-36 left-4 sm:left-8 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 animate-in slide-in-from-bottom-4">
+              <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+                  <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold">Atmosphere</h3>
                   <button onClick={closePopups} className="text-white/50 hover:text-white transition-colors"><X size={20} /></button>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 mt-4">
                   {THEMES.map(t => (
-                      <button key={t.id} onClick={() => { setCurrentTheme(t); closePopups(); }} className={`w-full text-left px-5 py-4 rounded-2xl text-xs font-serif transition-all flex items-center justify-between shadow-lg ${currentTheme.id === t.id ? 'bg-sakura-900/50 text-sakura-100 border border-sakura-700/40' : 'text-stone-100 hover:text-white border border-transparent hover:bg-white/10'}`}>
-                          <span className="drop-shadow-md">{t.name}</span>
-                          {currentTheme.id === t.id && <Sparkles size={14} className="text-sakura-300 animate-pulse" />}
+                      <button key={t.id} onClick={() => selectTheme(t)} className={`w-full text-left px-5 py-4 rounded-2xl text-xs font-serif transition-all flex items-center justify-between ${currentTheme.id === t.id ? 'bg-sakura-900/50 text-sakura-100' : 'text-stone-100 hover:bg-white/10'}`}>
+                          <span>{t.name}</span>
+                          {t.isPremium && !isPremium && <Lock size={12} className="text-yellow-400" />}
                       </button>
                   ))}
               </div>
@@ -471,58 +692,47 @@ const App: React.FC = () => {
       )}
 
       {showMixer && (
-          <div className="absolute bottom-36 left-4 sm:left-8 w-80 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 ring-1 ring-white/5 overflow-hidden">
-               <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold drop-shadow-lg">Garden Audio</h3>
+          <div className="absolute bottom-36 left-4 sm:left-8 w-80 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 animate-in slide-in-from-bottom-4 overflow-hidden">
+               <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                  <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold">Garden Audio</h3>
                   <button onClick={closePopups} className="text-white/50 hover:text-white transition-colors"><X size={20} /></button>
               </div>
-              <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                  {/* Master Volume */}
+              <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 mt-4">
+                  {/* Preset Quick Actions */}
                   <div className="space-y-3">
-                      <div className="flex justify-between text-[11px] text-white font-bold uppercase tracking-widest drop-shadow-xl"><span>Volume</span><span>{Math.round(masterVolume * 100)}%</span></div>
-                      <input type="range" min="0" max="1" step="0.01" value={masterVolume} onChange={(e) => { setMasterVolume(parseFloat(e.target.value)); audioEngine.setMasterVolume(parseFloat(e.target.value)); }} className="w-full h-2 bg-black/60 rounded-full appearance-none accent-sakura-400 cursor-pointer shadow-inner" />
-                  </div>
-                  
-                  {/* Rain Density */}
-                   <div className="space-y-3">
-                      <div className="flex justify-between text-[11px] text-white font-bold uppercase tracking-widest drop-shadow-xl"><span>Rain Density</span><span>{Math.round(rainDensity * 100)}%</span></div>
-                      <input type="range" min="0" max="1" step="0.01" value={rainDensity} onChange={(e) => setRainDensity(parseFloat(e.target.value))} className="w-full h-2 bg-black/60 rounded-full appearance-none accent-indigo-400 cursor-pointer shadow-inner" />
+                      <h4 className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-bold">情景 (Scenes)</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(SOUND_PRESETS).map(([key, preset]) => (
+                              <button key={key} onClick={() => applySoundPreset(key)} className="flex items-center gap-2 p-3 rounded-xl bg-black/30 border border-white/5 text-[10px] text-stone-200 hover:bg-white/5 hover:text-white transition-all uppercase tracking-widest font-bold">
+                                  <span className="opacity-60">{preset.icon}</span>
+                                  <span className="truncate">{preset.name}</span>
+                              </button>
+                          ))}
+                      </div>
                   </div>
 
                   <div className="w-full h-[1px] bg-white/10 my-2"></div>
 
-                  {/* Ambience Toggles */}
+                  <div className="space-y-3">
+                      <div className="flex justify-between text-[11px] text-white font-bold uppercase tracking-widest"><span>Volume</span><span>{Math.round(masterVolume * 100)}%</span></div>
+                      <input type="range" min="0" max="1" step="0.01" value={masterVolume} onChange={(e) => { setMasterVolume(parseFloat(e.target.value)); audioEngine.setMasterVolume(parseFloat(e.target.value)); }} className="w-full h-2 bg-black/60 rounded-full appearance-none accent-sakura-400" />
+                  </div>
+                   <div className="space-y-3">
+                      <div className="flex justify-between text-[11px] text-white font-bold uppercase tracking-widest"><span>Rain Density</span><span>{Math.round(rainDensity * 100)}%</span></div>
+                      <input type="range" min="0" max="1" step="0.01" value={rainDensity} onChange={(e) => setRainDensity(parseFloat(e.target.value))} className="w-full h-2 bg-black/60 rounded-full appearance-none accent-indigo-400" />
+                  </div>
+
+                  <div className="w-full h-[1px] bg-white/10 my-2"></div>
+
                   <div className="space-y-4">
                       <h4 className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-bold">Environment</h4>
                       <div className="grid grid-cols-2 gap-2">
-                        <button 
-                          onClick={() => toggleAmbience('birds')}
-                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${ambience.birds.active ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100' : 'bg-black/20 border-white/5 text-stone-500 hover:text-stone-300'}`}
-                        >
-                          <Bird size={16} />
-                          <span className="text-[10px] uppercase tracking-widest font-bold">Birds</span>
-                        </button>
-                        <button 
-                          onClick={() => toggleAmbience('wind')}
-                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${ambience.wind.active ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100' : 'bg-black/20 border-white/5 text-stone-500 hover:text-stone-300'}`}
-                        >
-                          <Wind size={16} />
-                          <span className="text-[10px] uppercase tracking-widest font-bold">Wind</span>
-                        </button>
-                        <button 
-                          onClick={() => toggleAmbience('river')}
-                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${ambience.river.active ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100' : 'bg-black/20 border-white/5 text-stone-500 hover:text-stone-300'}`}
-                        >
-                          <Waves size={16} />
-                          <span className="text-[10px] uppercase tracking-widest font-bold">River</span>
-                        </button>
-                        <button 
-                          onClick={() => toggleAmbience('crickets')}
-                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${ambience.crickets.active ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100' : 'bg-black/20 border-white/5 text-stone-500 hover:text-stone-300'}`}
-                        >
-                          <Bug size={16} />
-                          <span className="text-[10px] uppercase tracking-widest font-bold">Crickets</span>
-                        </button>
+                        <AmbienceToggle label="Birds" type="birds" icon={<Bird size={16} />} ambience={ambience} toggle={toggleAmbience} />
+                        <AmbienceToggle label="Wind" type="wind" icon={<Wind size={16} />} ambience={ambience} toggle={toggleAmbience} />
+                        <AmbienceToggle label="River" type="river" icon={<Waves size={16} />} ambience={ambience} toggle={toggleAmbience} />
+                        <AmbienceToggle label="Crickets" type="crickets" icon={<Bug size={16} />} ambience={ambience} toggle={toggleAmbience} />
+                        <AmbienceToggle label="Chime" type="windChime" icon={<Bell size={16} />} ambience={ambience} toggle={toggleAmbience} isPremium={!isPremium} />
+                        <AmbienceToggle label="Broom" type="broom" icon={<Trash2 size={16} />} ambience={ambience} toggle={toggleAmbience} isPremium={!isPremium} />
                       </div>
                   </div>
               </div>
@@ -530,17 +740,34 @@ const App: React.FC = () => {
       )}
       
       {showInstruments && (
-          <div className="absolute bottom-36 left-4 sm:left-8 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 shadow-[0_20px_80px_rgba(0,0,0,0.8)] animate-in slide-in-from-bottom-4 ring-1 ring-white/5">
-               <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold drop-shadow-lg">Tone Selection</h3>
+          <div className="absolute bottom-36 left-4 sm:left-8 w-72 bg-stone-950/10 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 z-50 animate-in slide-in-from-bottom-4">
+               <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+                  <h3 className="text-white font-serif text-sm tracking-[0.3em] uppercase font-bold">Tone Selection</h3>
                   <button onClick={closePopups} className="text-white/50 hover:text-white transition-colors"><X size={20} /></button>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                  {(['Suikin', 'Bamboo', 'Crystal', 'MusicBox', 'Ether', 'Deep'] as SoundType[]).map(type => (
-                      <button key={type} onClick={() => { setCurrentSoundType(type); closePopups(); }} className={`px-4 py-3 rounded-xl text-[10px] tracking-widest uppercase transition-all border ${currentSoundType === type ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100 shadow-sakura-900/20' : 'bg-black/20 border-white/5 text-stone-400 hover:text-white hover:bg-black/40'}`}>
-                          {type}
-                      </button>
-                  ))}
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                  {(['Suikin', 'Bamboo', 'Crystal', 'MusicBox', 'Ether', 'Deep'] as SoundType[]).map(type => {
+                      const premiumInstruments: string[] = ['Crystal', 'MusicBox', 'Ether', 'Deep'];
+                      const isLocked = premiumInstruments.includes(type) && !isPremium;
+                      return (
+                        <button key={type} onClick={() => selectInstrument(type)} className={`flex justify-between items-center px-4 py-3 rounded-xl text-[10px] tracking-widest uppercase transition-all border ${currentSoundType === type ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100' : 'bg-black/20 border-white/5 text-stone-400 hover:text-white'}`}>
+                            <span>{type}</span>
+                            {isLocked && <Lock size={12} className="text-yellow-400/70" />}
+                        </button>
+                      );
+                  })}
+              </div>
+          </div>
+      )}
+
+      {showPremiumModal && (
+          <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+              <div className="bg-stone-900 border border-yellow-500/30 rounded-3xl p-8 max-w-sm w-full shadow-2xl relative overflow-hidden text-center space-y-6">
+                  <Crown size={32} className="text-yellow-400 mx-auto" />
+                  <h3 className="text-2xl font-serif text-white tracking-widest">Zen Expansion</h3>
+                  <p className="text-stone-400 text-sm leading-relaxed">Support SakuraAme and unlock the full Japanese Garden experience, including the Zen Sweeping sounds and the Sakura River theme.</p>
+                  <button onClick={handlePurchase} className="w-full py-4 bg-gradient-to-r from-yellow-600 to-yellow-500 rounded-xl text-black font-bold uppercase tracking-widest text-xs">Unlock All Features</button>
+                  <button onClick={() => setShowPremiumModal(false)} className="text-stone-500 text-xs uppercase tracking-widest mt-2 block mx-auto">Maybe later</button>
               </div>
           </div>
       )}
@@ -548,35 +775,44 @@ const App: React.FC = () => {
   );
 };
 
+const AmbienceToggle: React.FC<{ label: string, type: AmbienceType, icon: React.ReactNode, ambience: any, toggle: (t: AmbienceType) => void, isPremium?: boolean }> = ({ label, type, icon, ambience, toggle, isPremium }) => (
+    <button onClick={() => toggle(type)} className={`flex items-center justify-between p-3 rounded-xl border transition-all ${ambience[type].active ? 'bg-sakura-900/40 border-sakura-500 text-sakura-100' : 'bg-black/20 border-white/5 text-stone-500'}`}>
+        <div className="flex items-center gap-3">
+            {icon}
+            <span className="text-[10px] uppercase tracking-widest font-bold">{label}</span>
+        </div>
+        {isPremium && ambience[type].isPremium && <Lock size={10} className="text-yellow-400" />}
+    </button>
+);
+
 const DrumButton: React.FC<{ note: Note, activeNote: string | null, spawnDrop: (id: string) => void }> = ({ note, activeNote, spawnDrop }) => {
     const isActive = activeNote === note.id;
     const petalPath = "M25 50 C 5 35, 0 10, 25 0 C 50 10, 45 35, 25 50";
     const dx = note.left - 50;
     const dy = note.top - 50;
     const angle = Math.atan2(dy, dx) + Math.PI / 2;
-
+    
     return (
-        <button
-            onMouseDown={(e) => { e.stopPropagation(); spawnDrop(note.id); }}
-            onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); spawnDrop(note.id); }}
-            className="absolute pointer-events-auto transform -translate-x-1/2 -translate-y-1/2 focus:outline-none group"
-            style={{ left: `${note.left}%`, top: `${note.top}%` }}
+        <button 
+          onMouseDown={(e) => { e.stopPropagation(); spawnDrop(note.id); }} 
+          onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); spawnDrop(note.id); }} 
+          className="absolute pointer-events-auto transform -translate-x-1/2 -translate-y-1/2" 
+          style={{ left: `${note.left}%`, top: `${note.top}%` }}
         >
             <div 
-                className={`w-16 h-16 md:w-20 md:h-20 transition-all duration-300 ease-out ${isActive ? 'scale-90 brightness-150' : 'hover:scale-115 hover:brightness-110'}`}
-                style={{ 
-                    transform: `rotate(${angle}rad)`,
-                    filter: isActive ? 'drop-shadow(0 0 20px rgba(251, 207, 232, 1))' : 'drop-shadow(0 0 15px rgba(0,0,0,0.8))'
-                }}
+              className="w-16 h-16 md:w-20 md:h-20 transition-all duration-1000" 
+              style={{ transform: `rotate(${angle}rad)` }}
             >
-                <svg viewBox="0 0 50 50" className="w-full h-full overflow-visible">
-                    <path 
-                        d={petalPath} 
-                        fill={isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.35)'}
-                        stroke={isActive ? '#fbcfe8' : 'rgba(255, 255, 255, 0.55)'}
-                        strokeWidth="1.2"
-                    />
-                </svg>
+                <div className={`w-full h-full ${isActive ? 'animate-bloom' : 'hover:scale-105 transition-transform duration-300'}`}>
+                    <svg viewBox="0 0 50 50" className="w-full h-full overflow-visible">
+                        <path 
+                          d={petalPath} 
+                          fill={isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.25)'} 
+                          stroke={isActive ? '#fbcfe8' : 'rgba(255, 255, 255, 0.45)'} 
+                          strokeWidth="1.0" 
+                        />
+                    </svg>
+                </div>
             </div>
         </button>
     );

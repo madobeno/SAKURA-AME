@@ -41,11 +41,12 @@ export interface NoteParticle {
   size: number;
 }
 
-export type AmbienceType = 'rain' | 'wind' | 'birds' | 'river' | 'crickets';
+export type AmbienceType = 'rain' | 'wind' | 'birds' | 'river' | 'crickets' | 'windChime' | 'broom';
 
 export interface AmbienceConfig {
   active: boolean;
   volume: number;
+  isPremium?: boolean;
 }
 
 export type SoundType = 'Crystal' | 'MusicBox' | 'Ether' | 'Deep' | 'Bamboo' | 'Suikin';
@@ -59,7 +60,8 @@ export interface Theme {
   rainColor: string;
   accentColor: string;
   particleColor: string;
-  overlayColor?: string; // Optional: Allows "white veil" or dark overlay
+  overlayColor?: string;
+  isPremium?: boolean;
 }
 
 export type TimerPreset = {

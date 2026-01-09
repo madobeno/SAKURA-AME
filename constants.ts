@@ -53,18 +53,8 @@ export const THEMES: Theme[] = [
     rainColor: 'rgba(254, 202, 202, 0.8)',
     accentColor: '#f9a8d4',
     particleColor: '#fbcfe8',
-    overlayColor: 'rgba(0, 0, 0, 0.2)'
-  },
-  {
-    id: 'tsumugi',
-    name: 'つむぎ糸 (Tsumugi-ito)',
-    bgGradient: 'from-stone-800 via-stone-700/30 to-stone-900',
-    bgImage: 'https://images.unsplash.com/photo-1542044801-30d3e45ae49a?auto=format&fit=crop&w=2000&q=80',
-    drumColor: 'rgba(87, 83, 78, 0.25)',
-    rainColor: 'rgba(214, 211, 209, 0.6)',
-    accentColor: '#a8a29e',
-    particleColor: '#d6d3d1',
-    overlayColor: 'rgba(0, 0, 0, 0.15)'
+    overlayColor: 'rgba(0, 0, 0, 0.2)',
+    isPremium: false
   },
   {
     id: 'night_garden',
@@ -75,7 +65,8 @@ export const THEMES: Theme[] = [
     rainColor: 'rgba(165, 180, 252, 0.5)',
     accentColor: '#818cf8',
     particleColor: '#fef9c3',
-    overlayColor: 'rgba(0, 0, 0, 0.4)'
+    overlayColor: 'rgba(0, 0, 0, 0.4)',
+    isPremium: false
   },
   {
     id: 'old_capital',
@@ -86,7 +77,20 @@ export const THEMES: Theme[] = [
     rainColor: 'rgba(254, 202, 202, 0.65)',
     accentColor: '#fb923c', 
     particleColor: '#fdba74',
-    overlayColor: 'rgba(0, 0, 0, 0.2)'
+    overlayColor: 'rgba(0, 0, 0, 0.2)',
+    isPremium: false
+  },
+  {
+    id: 'tsumugi',
+    name: 'つむぎ糸 (Tsumugi-ito)',
+    bgGradient: 'from-stone-800 via-stone-700/30 to-stone-900',
+    bgImage: 'https://images.unsplash.com/photo-1542044801-30d3e45ae49a?auto=format&fit=crop&w=2000&q=80',
+    drumColor: 'rgba(87, 83, 78, 0.25)',
+    rainColor: 'rgba(214, 211, 209, 0.6)',
+    accentColor: '#a8a29e',
+    particleColor: '#d6d3d1',
+    overlayColor: 'rgba(0, 0, 0, 0.15)',
+    isPremium: false
   }
 ];
 
