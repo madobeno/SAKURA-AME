@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>古都の雨: SakuraAme</title>
+    <title>桜雨: SakuraAme</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -30,13 +30,29 @@
               }
             },
             animation: {
-              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'ripple-in': 'ripple-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'ripple-in': 'ripple-in 2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'wa-float': 'wa-float 8s ease-in-out infinite',
+              'bloom': 'bloom 1.5s cubic-bezier(0.1, 0.7, 0.2, 1) forwards',
+              'ripple-out': 'ripple-out 4s cubic-bezier(0, 0, 0.2, 1) infinite',
             },
             keyframes: {
               'ripple-in': {
-                '0%': { transform: 'scale(0.95)', opacity: '0' },
+                '0%': { transform: 'scale(0.98)', opacity: '0' },
                 '100%': { transform: 'scale(1)', opacity: '1' }
+              },
+              'wa-float': {
+                '0%, 100%': { transform: 'translate(0, 0)' },
+                '50%': { transform: 'translate(0, -10px)' }
+              },
+              'bloom': {
+                '0%': { transform: 'scale(1)', filter: 'brightness(1) blur(0px)' },
+                '15%': { transform: 'scale(1.12)', filter: 'brightness(1.25) blur(1px)' },
+                '100%': { transform: 'scale(1)', filter: 'brightness(1) blur(0px)' }
+              },
+              'ripple-out': {
+                '0%': { transform: 'scale(0.5)', opacity: '0.6' },
+                '100%': { transform: 'scale(4)', opacity: '0' }
               }
             },
             fontFamily: {
@@ -58,16 +74,21 @@
         -moz-osx-font-smoothing: grayscale;
       }
       
-      /* スクロールバー非表示 */
-      
       ::-webkit-scrollbar {
         display: none;
       }
       
-      /* 画像が読み込まれるまでのスムーズな遷移 */
-      
-      .bg-transition {
-        transition: opacity 1s ease-in-out, filter 1s ease-in-out;
+      .grain::after {
+        content: "";
+        position: fixed;
+        top: -150%;
+        left: -150%;
+        width: 300%;
+        height: 300%;
+        background-image: url("https://www.transparenttextures.com/patterns/p6.png");
+        opacity: 0.03;
+        pointer-events: none;
+        z-index: 100;
       }
     </style>
 
@@ -84,9 +105,9 @@
       }
     }
     </script>
-  <script type="module" crossorigin src="/SAKURA-AME/assets/index-BkIRfBw1.js"></script>
+  <script type="module" crossorigin src="/SAKURA-AME/assets/index-BbXBBhSr.js"></script>
 </head>
-  <body>
+  <body class="grain">
     <div id="root"></div>
 </body>
 </html>
