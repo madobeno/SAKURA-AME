@@ -41,7 +41,7 @@ export interface NoteParticle {
   size: number;
 }
 
-export type AmbienceType = 'rain' | 'wind' | 'birds' | 'river' | 'crickets' | 'windChime' | 'broom';
+export type AmbienceType = 'rain' | 'wind' | 'birds' | 'river' | 'crickets' | 'windChime' | 'honeybee' | 'thunder' | 'suikinkutsu';
 
 export interface AmbienceConfig {
   active: boolean;

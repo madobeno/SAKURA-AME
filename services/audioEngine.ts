@@ -12,7 +12,9 @@ class AudioEngine {
     river: { active: false, volume: 0 },
     crickets: { active: false, volume: 0 },
     windChime: { active: false, volume: 0 },
-    broom: { active: false, volume: 0 },
+    honeybee: { active: false, volume: 0 },
+    thunder: { active: false, volume: 0 },
+    suikinkutsu: { active: false, volume: 0 },
   };
   private buffers: Record<string, AudioBuffer> = {};
   private kapponBuffer: AudioBuffer | null = null;
@@ -174,16 +176,59 @@ class AudioEngine {
     source.start();
   }
 
+  playTempleBell() {
+    if (!this.ctx || !this.masterGain) return;
+    const t = this.ctx.currentTime;
+    const baseFreq = 82.41; // E2 approximate
+    
+    const bellGain = this.ctx.createGain();
+    bellGain.connect(this.masterGain);
+    
+    // Characteristical "Wan-wan" beating effect LFO
+    const lfo = this.ctx.createOscillator();
+    lfo.frequency.value = 1.05; 
+    const lfoGain = this.ctx.createGain();
+    lfoGain.gain.value = 0.25;
+    lfo.connect(lfoGain);
+    lfoGain.connect(bellGain.gain);
+
+    bellGain.gain.setValueAtTime(0, t);
+    bellGain.gain.linearRampToValueAtTime(0.8, t + 0.01);
+    bellGain.gain.exponentialRampToValueAtTime(0.001, t + 15);
+
+    const partials = [
+        { f: 1.0, g: 1.0, d: 15 },
+        { f: 2.002, g: 0.5, d: 12 },
+        { f: 2.98, g: 0.35, d: 10 },
+        { f: 3.95, g: 0.2, d: 8 },
+        { f: 5.14, g: 0.15, d: 6 },
+        { f: 7.8, g: 0.1, d: 4 }
+    ];
+
+    partials.forEach(p => {
+        const osc = this.ctx!.createOscillator();
+        const pGain = this.ctx!.createGain();
+        osc.frequency.setValueAtTime(baseFreq * p.f, t);
+        pGain.gain.setValueAtTime(p.g, t);
+        pGain.gain.exponentialRampToValueAtTime(0.001, t + p.d);
+        osc.connect(pGain);
+        pGain.connect(bellGain);
+        osc.start(t);
+        osc.stop(t + p.d + 1);
+    });
+    lfo.start(t);
+    lfo.stop(t + 16);
+  }
+
   startAmbienceLoop() {
       setInterval(() => {
           if (!this.ctx || this.ctx.state !== 'running') return;
-          if (this.ambienceState.birds.active && Math.random() < 0.1) this.playUguisu(this.ambienceState.birds.volume);
-          if (this.ambienceState.crickets.active && Math.random() < 0.3) this.playCricket(this.ambienceState.crickets.volume);
-          if (this.ambienceState.windChime.active && Math.random() < 0.15) this.playWindChime(this.ambienceState.windChime.volume);
-          
-          if (this.ambienceState.broom.active && Math.random() < 0.1) {
-              this.playBroomSweep(this.ambienceState.broom.volume);
-          }
+          if (this.ambienceState.birds.active && Math.random() < 0.08) this.playUguisu(this.ambienceState.birds.volume);
+          if (this.ambienceState.crickets.active && Math.random() < 0.25) this.playCricket(this.ambienceState.crickets.volume);
+          if (this.ambienceState.windChime.active && Math.random() < 0.1) this.playWindChime(this.ambienceState.windChime.volume);
+          if (this.ambienceState.honeybee.active && Math.random() < 0.12) this.playBeeBuzz(this.ambienceState.honeybee.volume);
+          if (this.ambienceState.thunder.active && Math.random() < 0.004) this.playDistantThunder(this.ambienceState.thunder.volume);
+          if (this.ambienceState.suikinkutsu.active && Math.random() < 0.15) this.playSuikinkutsu(this.ambienceState.suikinkutsu.volume);
       }, 800);
   }
 
@@ -191,7 +236,7 @@ class AudioEngine {
     if (!this.ctx || !this.masterGain) return;
     this.ambienceState[type].active = active;
     this.ambienceState[type].volume = vol;
-    if (['rain', 'wind', 'river'].includes(type)) {
+    if (['rain', 'wind', 'river', 'honeybee'].includes(type)) {
         this.handleContinuousNoise(type, active, vol);
     }
   }
@@ -217,6 +262,12 @@ class AudioEngine {
             if (type === 'rain') { filter.type = 'lowpass'; filter.frequency.value = 800; gain.gain.setTargetAtTime(vol * 0.15, this.ctx!.currentTime, 1); }
             if (type === 'wind') { filter.type = 'bandpass'; filter.frequency.value = 400; filter.Q.value = 1; gain.gain.setTargetAtTime(vol * 0.15, this.ctx!.currentTime, 1); }
             if (type === 'river') { filter.type = 'lowpass'; filter.frequency.value = 300; gain.gain.setTargetAtTime(vol * 0.15, this.ctx!.currentTime, 1); }
+            if (type === 'honeybee') {
+                filter.type = 'bandpass';
+                filter.frequency.value = 160;
+                filter.Q.value = 5;
+                gain.gain.setTargetAtTime(vol * 0.04, this.ctx!.currentTime, 1); 
+            }
 
             source.connect(filter);
             filter.connect(gain);
@@ -225,7 +276,8 @@ class AudioEngine {
             this.ambienceState[type as AmbienceType].nodes = [source, gain, filter];
           } else {
              const gain = this.ambienceState[type as AmbienceType].nodes![1] as GainNode;
-             gain.gain.setTargetAtTime(vol * 0.12, this.ctx!.currentTime, 0.5);
+             const scale = type === 'honeybee' ? 0.04 : 0.12;
+             gain.gain.setTargetAtTime(vol * scale, this.ctx!.currentTime, 0.5);
           }
       } else if (this.ambienceState[type as AmbienceType].nodes) {
           const gain = this.ambienceState[type as AmbienceType].nodes![1] as GainNode;
@@ -236,38 +288,87 @@ class AudioEngine {
       }
   }
 
-  // Broom sweeping sound: synthesized filtered noise
-  playBroomSweep(vol: number) {
+  playBeeBuzz(vol: number) {
       if (!this.ctx || !this.masterGain) return;
       const t = this.ctx.currentTime;
-      const duration = 0.8 + Math.random() * 0.4;
-      
-      const bufferSize = this.ctx.sampleRate * duration;
+      const duration = 0.5 + Math.random() * 1.0;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140 + Math.random() * 30, t);
+      const lfo = this.ctx.createOscillator();
+      const lfoGain = this.ctx.createGain();
+      lfo.frequency.value = 15;
+      lfoGain.gain.value = 12;
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(vol * 0.06, t + 0.2); 
+      gain.gain.linearRampToValueAtTime(0, t + duration);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      lfo.start(t);
+      osc.stop(t + duration);
+      lfo.stop(t + duration);
+  }
+
+  playDistantThunder(vol: number) {
+      if (!this.ctx || !this.masterGain) return;
+      const t = this.ctx.currentTime;
+      const duration = 12 + Math.random() * 5;
+      const bufferSize = this.ctx.sampleRate * 2;
       const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-      
       const source = this.ctx.createBufferSource();
       source.buffer = buffer;
-      
+      source.loop = true;
       const filter = this.ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(1200, t);
-      filter.frequency.exponentialRampToValueAtTime(800, t + duration);
-      filter.Q.value = 0.5;
-      
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(25, t);
+      filter.frequency.linearRampToValueAtTime(140 + Math.random() * 60, t + 3);
+      filter.frequency.linearRampToValueAtTime(25, t + duration);
       const gain = this.ctx.createGain();
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(vol * 0.15, t + 0.1);
-      gain.gain.linearRampToValueAtTime(vol * 0.1, t + duration * 0.7);
+      gain.gain.linearRampToValueAtTime(vol * 1.0, t + 4); 
+      gain.gain.linearRampToValueAtTime(vol * 0.4, t + 8);
       gain.gain.linearRampToValueAtTime(0, t + duration);
-      
       source.connect(filter);
       filter.connect(gain);
       gain.connect(this.masterGain);
-      
       source.start(t);
       source.stop(t + duration);
+  }
+
+  playSuikinkutsu(vol: number) {
+      if (!this.ctx || !this.masterGain) return;
+      const t = this.ctx.currentTime;
+      const baseFreqs = [146.83, 196.00, 246.94];
+      const freq = baseFreqs[Math.floor(Math.random() * baseFreqs.length)];
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const partials = [1, 2.01, 3.5, 5.05];
+      partials.forEach((p, i) => {
+          const pOsc = this.ctx!.createOscillator();
+          const pGain = this.ctx!.createGain();
+          pOsc.frequency.setValueAtTime(freq * p, t);
+          pGain.gain.setValueAtTime(0.3 / (i + 1), t);
+          pGain.gain.exponentialRampToValueAtTime(0.001, t + 4);
+          pOsc.connect(pGain);
+          pGain.connect(gain);
+          pOsc.start(t);
+          pOsc.stop(t + 4.5);
+      });
+      osc.frequency.setValueAtTime(800, t);
+      osc.frequency.exponentialRampToValueAtTime(freq, t + 0.05);
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(vol * 0.15, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 5);
+      gain.connect(this.masterGain);
+      osc.connect(gain);
+      osc.start(t);
+      osc.stop(t + 5);
   }
 
   playUguisu(vol: number) {
@@ -328,21 +429,21 @@ class AudioEngine {
   playWindChime(vol: number) {
     if (!this.ctx || !this.masterGain) return;
     const t = this.ctx.currentTime;
-    const numChimes = Math.floor(Math.random() * 3) + 1;
+    const numChimes = Math.floor(Math.random() * 2) + 1;
     for (let i = 0; i < numChimes; i++) {
-        const start = t + (i * 0.15);
+        const start = t + (i * 0.25 * Math.random());
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        const freq = 2200 + Math.random() * 800;
+        const freq = 1800 + Math.random() * 1200;
         osc.frequency.setValueAtTime(freq, start);
         osc.type = 'sine';
         gain.connect(this.masterGain);
         osc.connect(gain);
         gain.gain.setValueAtTime(0, start);
-        gain.gain.linearRampToValueAtTime(vol * 0.4, start + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, start + 1.5);
+        gain.gain.linearRampToValueAtTime(vol * 0.3, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 2.0);
         osc.start(start);
-        osc.stop(start + 1.5);
+        osc.stop(start + 2.0);
     }
   }
 }
