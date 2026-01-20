@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700&display=swap');
+
+body {
+  background-color: #121212;
+  color: #fce7f3;
+  overflow: hidden;
+  font-family: 'Noto Serif JP', serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.grain::after {
+  content: "";
+  position: fixed;
+  top: -150%; 
+  left: -150%; 
+  width: 300%; 
+  height: 300%;
+  background-image: url("https://www.transparenttextures.com/patterns/p6.png");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 100;
+}
