@@ -1,37 +1,17 @@
-
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>桜雨 - SakuraAme</title>
-    <meta name="description" content="Zen healing experience inspired by a Japanese garden" />
-    <meta name="theme-color" content="#4a0417" />
-    <!-- VitePWAが自動的にmanifestをリンクするので、手動の記述は不要になる場合がありますが安全のため維持 -->
-    <link rel="manifest" href="./manifest.json" />
-    <link rel="stylesheet" href="./index.css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-  <script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "vite-plugin-pwa": "https://esm.sh/vite-plugin-pwa@^1.2.0",
-    "vite": "https://esm.sh/vite@^7.3.1",
-    "path": "https://esm.sh/path@^0.12.7",
-    "url": "https://esm.sh/url@^0.11.4",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>桜雨 - SakuraAme</title>
+  <meta name="description" content="Zen healing experience inspired by a Japanese garden" />
+  <meta name="theme-color" content="#4a0417" />
 </head>
-  <body class="grain">
-    <div id="root"></div>
-    <!-- Viteのエントリーポイント -->
-    <script type="module" src="./index.tsx"></script>
-  <script type="module" src="/index.tsx"></script>
+
+<body class="grain">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
+
 </html>
