@@ -1,3 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>桜雨 - SakuraAme</title>
+  <meta name="description" content="Zen healing experience inspired by a Japanese garden" />
+  <meta name="theme-color" content="#4a0417" />
+</head>
+
+<body class="grain">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        sakura: {
+          900: '#4a0417',
+          800: '#831843',
+          700: '#be185d',
+          500: '#ec4899',
+          300: '#f9a8d4',
+          100: '#fce7f3',
+          50: '#fff1f2',
+        },
+        stone: {
+          900: '#1c1917',
+          800: '#292524',
+          700: '#44403c',
+          500: '#78716c',
+          300: '#d6d3d1',
+          100: '#f5f5f4',
+        }
+      },
+      animation: {
+        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'ripple-in': 'ripple-in 2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'wa-float': 'wa-float 8s ease-in-out infinite',
+        'bloom': 'bloom 1.5s cubic-bezier(0.1, 0.7, 0.2, 1) forwards',
+        'ripple-out': 'ripple-out 4s cubic-bezier(0, 0, 0.2, 1) infinite',
+      },
+      keyframes: {
+        'ripple-in': {
+          '0%': { transform: 'scale(0.98)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' }
+        },
+        'wa-float': {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '50%': { transform: 'translate(0, -10px)' }
+        },
+        'bloom': {
+          '0%': { transform: 'scale(1)', filter: 'brightness(1) blur(0px)' },
+          '15%': { transform: 'scale(1.12)', filter: 'brightness(1.25) blur(1px)' },
+          '100%': { transform: 'scale(1)', filter: 'brightness(1) blur(0px)' }
+        },
+        'ripple-out': {
+          '0%': { transform: 'scale(0.5)', opacity: '0.6' },
+          '100%': { transform: 'scale(4)', opacity: '0' }
+        }
+      },
+      fontFamily: {
+        serif: ['"Noto Serif JP"', '"Hiragino Mincho ProN"', 'serif'],
+      }
+    },
+  },
+  plugins: [],
+}
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig({
+  // GitHub Pagesのサブディレクトリ名に合わせてベースパスを設定
+  base: "/SAKURA-AME/",
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png'],
+      manifest: {
+        name: '桜雨 - SakuraAme',
+        short_name: '桜雨',
+        description: 'Zen healing experience inspired by a Japanese garden',
+        theme_color: '#4a0417',
+        background_color: '#1c1917',
+        display: 'standalone',
+        orientation: 'portrait-primary',
+        icons: [
+          {
+            src: 'icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any maskable'
+          },
+          {
+            src: 'icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ]
+      },
+      workbox: {
+        // Unsplashなどの外部画像もキャッシュに含める設定
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'unsplash-images',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-stylesheets'
+            }
+          }
+        ]
+      }
+    })
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  build: {
+    // パフォーマンス向上のためチャンク分割を最適化
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'lucide-react']
+        }
+      }
+    }
+  }
+});
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Volume2,
@@ -584,21 +743,18 @@ const App: React.FC = () => {
   if (!hasStarted) {
     return (
       <div
-        className="fixed inset-0 h-[100svh] w-full flex flex-col items-center justify-center bg-stone-950 text-sakura-100 overflow-hidden cursor-pointer grain"
+        className="fixed inset-0 h-[100svh] w-full flex flex-col items-center justify-center bg-stone-950 text-sakura-100 overflow-hidden"
         onClick={startExperience}
       >
-        <img
-          src="https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=2000&q=80"
-          className="absolute inset-0 w-full h-full object-cover opacity-60 blur-[2px]"
-          alt="Spring Garden"
-        />
 
-        <div className="relative z-10 text-center space-y-8 p-12 max-w-lg bg-stone-950/40 backdrop-blur-3xl rounded-3xl border border-white/10 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
+        <div className="absolute inset-0 z-0"><img src="https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=2000&q=80" className="w-full h-full object-cover scale-110 blur-[2px]" alt="Spring Garden" /></div>
+        <div className="absolute inset-0 bg-black/50 z-0"></div>
+        <div className="z-10 text-center space-y-8 p-12 max-w-lg bg-stone-950/20 backdrop-blur-3xl rounded-3xl border border-white/5 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
           <h1 className="text-8xl font-serif tracking-[0.4em] text-white mb-2 drop-shadow-[0_15px_15px_rgba(0,0,0,0.9)]">桜雨</h1>
           <h2 className="text-xl font-light tracking-[0.3em] text-sakura-100/90 uppercase drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">Sakura Ame</h2>
           <div className="w-24 h-[1.5px] bg-white/40 mx-auto my-6 shadow-2xl"></div>
           <p className="text-sm font-serif text-white/80 italic drop-shadow-lg tracking-widest">Gentle Rain Instrument</p>
-          <div className="mt-8 p-4 px-14 border border-white/30 bg-white/5 rounded-full text-xs text-white hover:bg-white/10 hover:border-white/50 transition-all shadow-2xl font-bold tracking-[0.4em] uppercase">Start Experience</div>
+          <div className="mt-8 p-4 px-14 border border-white/30 bg-white/5 rounded-full text-xs text-white hover:bg-white/10 hover:border-white/50 transition-all cursor-pointer backdrop-blur-md shadow-2xl font-bold tracking-[0.4em] uppercase">Start Experience</div>
         </div>
       </div>
     );
@@ -609,7 +765,7 @@ const App: React.FC = () => {
   const drumSize = isMobile ? Math.min(dimensions.width * 0.35, dimensions.height * 0.25) : Math.min(dimensions.width * 0.4, dimensions.height * 0.35);
 
   return (
-    <div className={`relative h-screen w-full bg-stone-950 overflow-hidden font-serif select-none transition-colors duration-1000 grain ${activeEffect === 'storm' ? 'animate-pulse-slow' : ''}`} onMouseDown={() => audioEngine.resume()} onTouchStart={() => audioEngine.resume()}>
+    <div className={`relative h-screen w-full bg-stone-950 overflow-hidden font-serif select-none transition-colors duration-1000 ${activeEffect === 'storm' ? 'animate-pulse-slow' : ''}`} onMouseDown={() => audioEngine.resume()} onTouchStart={() => audioEngine.resume()}>
       <div className="absolute inset-0 z-0 overflow-hidden bg-black">
         {THEMES.map((theme) => (
           <div key={theme.id} className={`absolute inset-0 transition-opacity duration-[1500ms] pointer-events-none ${currentTheme.id === theme.id ? 'opacity-100' : 'opacity-0'}`}>
@@ -916,4 +1072,50 @@ const DrumButton: React.FC<{ note: Note, activeNote: string | null, spawnDrop: (
   );
 };
 
-export default App;
+export default App;import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.tsx'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #121212;
+  color: #fce7f3;
+  overflow: hidden;
+  font-family: 'Noto Serif JP', serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.grain::after {
+  content: "";
+  position: fixed;
+  /* 画面ぴったりに固定する */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  /* 画面の横幅いっぱい */
+  height: 100vh;
+  /* 画面の高さいっぱい */
+  background-image: url("https://www.transparenttextures.com/patterns/p6.png");
+  /* 背景画像をタイル状に繰り返す設定を念のため追加 */
+  background-repeat: repeat;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 100;
+}
