@@ -588,12 +588,24 @@ const App: React.FC = () => {
         onClick={startExperience}
       >
         <img
-          src="https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=2000&q=80"
-          className="absolute inset-0 w-full h-full object-cover opacity-60 blur-[2px]"
-          alt="Spring Garden"
-        />
+  src="/bg-start.webp"
+  srcSet="/bg-start.webp 1x, /bg-start@2x.webp 2x"
+  sizes="100vw"
+  alt=""
+  decoding="async"
+  loading="eager"
+  className="
+    absolute inset-0
+    w-full h-[100svh]
+    object-cover
+    opacity-0 animate-fade-in
+    sm:blur-[2px]
+  "
+/>
 
-        <div className="relative z-10 text-center space-y-8 p-12 max-w-lg bg-stone-950/40 backdrop-blur-3xl rounded-3xl border border-white/10 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
+
+
+        <div className="relative z-10 text-center space-y-8 p-12 max-w-lg bg-stone-950/50 sm:backdrop-blur-3xl rounded-3xl border border-white/10 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
           <h1 className="text-8xl font-serif tracking-[0.4em] text-white mb-2 drop-shadow-[0_15px_15px_rgba(0,0,0,0.9)]">桜雨</h1>
           <h2 className="text-xl font-light tracking-[0.3em] text-sakura-100/90 uppercase drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">Sakura Ame</h2>
           <div className="w-24 h-[1.5px] bg-white/40 mx-auto my-6 shadow-2xl"></div>
@@ -613,7 +625,15 @@ const App: React.FC = () => {
       <div className="absolute inset-0 z-0 overflow-hidden bg-black">
         {THEMES.map((theme) => (
           <div key={theme.id} className={`absolute inset-0 transition-opacity duration-[1500ms] pointer-events-none ${currentTheme.id === theme.id ? 'opacity-100' : 'opacity-0'}`}>
-            <img src={theme.bgImage} className="w-full h-full object-cover scale-[1.02]" alt={theme.name} loading="eager" />
+            <img
+  src={theme.bgImage}
+  srcSet={`${theme.bgImage} 1x, ${theme.bgImage2x} 2x`}
+  sizes="100vw"
+  className="w-full h-full object-cover scale-[1.02]"
+  alt=""
+  decoding="async"
+/>
+
             <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} mix-blend-multiply opacity-80`}></div>
             <div className="absolute inset-0" style={{ backgroundColor: theme.overlayColor }}></div>
           </div>

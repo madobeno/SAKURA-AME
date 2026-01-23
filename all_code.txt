@@ -7,6 +7,8 @@
   <title>桜雨 - SakuraAme</title>
   <meta name="description" content="Zen healing experience inspired by a Japanese garden" />
   <meta name="theme-color" content="#4a0417" />
+  <link rel="icon" type="image/x-icon" href="/SAKURA-AME/favicon.ico" />
+  <link rel="apple-touch-icon" href="/SAKURA-AME/icon-192.png" />
 </head>
 
 <body class="grain">
@@ -743,18 +745,21 @@ const App: React.FC = () => {
   if (!hasStarted) {
     return (
       <div
-        className="fixed inset-0 h-[100svh] w-full flex flex-col items-center justify-center bg-stone-950 text-sakura-100 overflow-hidden"
+        className="fixed inset-0 h-[100svh] w-full flex flex-col items-center justify-center bg-stone-950 text-sakura-100 overflow-hidden cursor-pointer grain"
         onClick={startExperience}
       >
+        <img
+          src="https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=2000&q=80"
+          className="absolute inset-0 w-full h-full object-cover opacity-60 blur-[2px]"
+          alt="Spring Garden"
+        />
 
-        <div className="absolute inset-0 z-0"><img src="https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=2000&q=80" className="w-full h-full object-cover scale-110 blur-[2px]" alt="Spring Garden" /></div>
-        <div className="absolute inset-0 bg-black/50 z-0"></div>
-        <div className="z-10 text-center space-y-8 p-12 max-w-lg bg-stone-950/20 backdrop-blur-3xl rounded-3xl border border-white/5 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
+        <div className="relative z-10 text-center space-y-8 p-12 max-w-lg bg-stone-950/40 backdrop-blur-3xl rounded-3xl border border-white/10 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
           <h1 className="text-8xl font-serif tracking-[0.4em] text-white mb-2 drop-shadow-[0_15px_15px_rgba(0,0,0,0.9)]">桜雨</h1>
           <h2 className="text-xl font-light tracking-[0.3em] text-sakura-100/90 uppercase drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">Sakura Ame</h2>
           <div className="w-24 h-[1.5px] bg-white/40 mx-auto my-6 shadow-2xl"></div>
           <p className="text-sm font-serif text-white/80 italic drop-shadow-lg tracking-widest">Gentle Rain Instrument</p>
-          <div className="mt-8 p-4 px-14 border border-white/30 bg-white/5 rounded-full text-xs text-white hover:bg-white/10 hover:border-white/50 transition-all cursor-pointer backdrop-blur-md shadow-2xl font-bold tracking-[0.4em] uppercase">Start Experience</div>
+          <div className="mt-8 p-4 px-14 border border-white/30 bg-white/5 rounded-full text-xs text-white hover:bg-white/10 hover:border-white/50 transition-all shadow-2xl font-bold tracking-[0.4em] uppercase">Start Experience</div>
         </div>
       </div>
     );
@@ -765,7 +770,7 @@ const App: React.FC = () => {
   const drumSize = isMobile ? Math.min(dimensions.width * 0.35, dimensions.height * 0.25) : Math.min(dimensions.width * 0.4, dimensions.height * 0.35);
 
   return (
-    <div className={`relative h-screen w-full bg-stone-950 overflow-hidden font-serif select-none transition-colors duration-1000 ${activeEffect === 'storm' ? 'animate-pulse-slow' : ''}`} onMouseDown={() => audioEngine.resume()} onTouchStart={() => audioEngine.resume()}>
+    <div className={`relative h-screen w-full bg-stone-950 overflow-hidden font-serif select-none transition-colors duration-1000 grain ${activeEffect === 'storm' ? 'animate-pulse-slow' : ''}`} onMouseDown={() => audioEngine.resume()} onTouchStart={() => audioEngine.resume()}>
       <div className="absolute inset-0 z-0 overflow-hidden bg-black">
         {THEMES.map((theme) => (
           <div key={theme.id} className={`absolute inset-0 transition-opacity duration-[1500ms] pointer-events-none ${currentTheme.id === theme.id ? 'opacity-100' : 'opacity-0'}`}>
@@ -1074,6 +1079,9 @@ const DrumButton: React.FC<{ note: Note, activeNote: string | null, spawnDrop: (
 
 export default App;import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import '@fontsource/noto-serif-jp/200.css'
+import '@fontsource/noto-serif-jp/400.css'
+import '@fontsource/noto-serif-jp/700.css'
 import './index.css'
 import App from './App.tsx'
 
@@ -1082,8 +1090,6 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;400;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -1105,15 +1111,11 @@ body {
 .grain::after {
   content: "";
   position: fixed;
-  /* 画面ぴったりに固定する */
   top: 0;
   left: 0;
   width: 100vw;
-  /* 画面の横幅いっぱい */
-  height: 100vh;
-  /* 画面の高さいっぱい */
-  background-image: url("https://www.transparenttextures.com/patterns/p6.png");
-  /* 背景画像をタイル状に繰り返す設定を念のため追加 */
+  height: 100svh;
+  background-image: url("./assets/grain.png");
   background-repeat: repeat;
   opacity: 0.03;
   pointer-events: none;

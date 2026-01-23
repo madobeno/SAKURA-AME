@@ -41,17 +41,17 @@ export const NOTES: Note[] = [
   }))
 ];
 
+const START_BG = "/bg-start.webp";
+const START_BG_2X = "/bg-start@2x.webp";
+
 export const THEMES: Theme[] = [
   {
-    id: 'sakura_day',
-    name: '春の庭 (Spring Garden)',
-    bgGradient: 'from-stone-950 via-pink-950/20 to-stone-900',
-    bgImage: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=2000&q=80',
-    drumColor: 'rgba(255, 241, 242, 0.08)',
-    rainColor: 'rgba(254, 202, 202, 0.8)',
-    accentColor: '#f9a8d4',
-    particleColor: '#fbcfe8',
-    overlayColor: 'rgba(0, 0, 0, 0.2)',
+    id: "sakura",
+    name: "Sakura",
+    bgImage: START_BG,
+    bgImage2x: START_BG_2X,
+    bgGradient: "from-pink-300/40 to-stone-900/80",
+    overlayColor: "rgba(0,0,0,0.25)",
     isPremium: false
   },
   {
