@@ -46,7 +46,7 @@ export default {
           700: '#be185d',
           500: '#ec4899',
           300: '#f9a8d4',
-          100: '#fce7f3', // 全て同じ {} 内に入れる [1, 2]
+          100: '#fce7f3',
           50: '#fff1f2',
         },
         stone: {
@@ -57,6 +57,12 @@ export default {
           300: '#d6d3d1',
           100: '#f5f5f4',
         }
+      },
+      transitionDuration: {
+        '2000': '2000ms',
+      },
+      transitionTimingFunction: {
+        'wa-ease': 'cubic-bezier(0.22, 1, 0.36, 1)',
       },
       animation: {
         'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -460,6 +466,21 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [timerRemaining]);
 
+  // プレロード（事前読み込み）の処理
+useEffect(() => {
+  // プレロードしたい画像のリスト（パスはご自身の環境に合わせて調整してください）
+  const imagesToPreload = [
+    './bg-start.webp',
+    ...THEMES.map(t => t.bgImage),
+    ...THEMES.map(t => t.bgImage2x)
+  ];
+
+  imagesToPreload.forEach((src) => {
+    const img = new Image();
+    img.src = src;
+  });
+}, []); // 初回レンダリング時のみ実行
+
   const triggerVisualRipple = (x: number, y: number, color: string, size: number = 20) => {
     setRipples(prev => [...prev, {
       id: Math.random().toString(36),
@@ -772,12 +793,12 @@ const App: React.FC = () => {
       {/* 背景レイヤー */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <img
-  src="./bg-start.webp"
-  srcSet="./bg-start.webp 1x, ./bg-start@2x.webp 2x"
+  src="bg-start.webp"
+  srcSet="bg-start.webp 1x, bg-start@2x.webp 2x"
   sizes="100vw"
   alt="Spring garden background"
   fetchpriority="high"
-  decoding="sync"
+  decoding="async"
   loading="eager"
   className="
     absolute inset-0
@@ -787,7 +808,7 @@ const App: React.FC = () => {
   "
 />
 
-        <div className="absolute inset-0 z-10 bg-black/20 animate-fade-in" />
+        <div className="absolute inset-0 z-10 bg-black/20" />
       </div>
 
       {/* UIレイヤー */}
@@ -831,7 +852,7 @@ const App: React.FC = () => {
   decoding="async"
 />
 
-            <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} opacity-60`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} opacity-20`}></div>
             <div className="absolute inset-0" style={{ backgroundColor: theme.overlayColor }}></div>
           </div>
         ))}
@@ -863,7 +884,7 @@ const App: React.FC = () => {
 
       {!isPremium && (
         <div className="absolute top-8 left-8 z-40">
-          <button onClick={() => setShowPremiumModal(true)} className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-sakura-300/30 to-sakura-500/30 backdrop-blur-md rounded-full border border-sakura-400/40 text-sakura-50 text-xs font-bold tracking-widest uppercase hover:bg-sakura-500/40 transition-all shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-pulse-slow">
+          <button onClick={() => setShowPremiumModal(true)} className="flex items-center gap-2 px-6 py-2 bg-sakura-500/20 hover:bg-sakura-500/40 text-sakura-100 border border-sakura-400/30 rounded-full transition-all duration-700 ease-wa-ease  /* 👈 ここで統一感のある動きを適用 */backdrop-blur-md shadow-[0_0_15px_rgba(236,72,153,0.1)] animate-pulse-slow">
             <Flower size={14} className="text-sakura-200" /><span>Unlock Full Garden</span>
           </button>
         </div>
@@ -1171,9 +1192,9 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: url('./assets/grain.png');
+  background-image: url('/SAKURA-AME/assets/grain.png');
   background-repeat: repeat;
-  opacity: 0.15;
+  opacity: 0.03;
   pointer-events: none;
   z-index: 20;
 }

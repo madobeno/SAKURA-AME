@@ -599,7 +599,7 @@ useEffect(() => {
   if (!hasStarted) {
   return (
     <div
-      className="fixed inset-0 h-[100svh] w-full overflow-hidden cursor-pointer grain"
+      className="fixed inset-0 h-[100svh] w-full overflow-hidden cursor-pointerbg-[#1c1917] flex flex-col items-center justify-center"
       onClick={startExperience}
     >
       {/* 背景レイヤー */}
@@ -616,6 +616,7 @@ useEffect(() => {
     absolute inset-0
     w-full h-[100svh]
     object-cover
+    opacity-60
     sm:blur-[2px]
   "
 />
@@ -624,7 +625,7 @@ useEffect(() => {
       </div>
 
       {/* UIレイヤー */}
-      <div className="relative z-20 h-full w-full flex items-center justify-center text-sakura-100">
+      <div className="relative z-10 h-full w-full flex items-center justify-center text-sakura-100">
         <div className="text-center space-y-8 p-12 max-w-lg bg-stone-950/50 sm:backdrop-blur-2xl rounded-3xl border border-white/10 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
           <h1 className="text-8xl sm:text-7xl font-serif tracking-[0.4em] text-white mb-2">
             桜雨
