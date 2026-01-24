@@ -13,7 +13,7 @@ export default {
           700: '#be185d',
           500: '#ec4899',
           300: '#f9a8d4',
-          100: '#fce7f3',
+          100: '#fce7f3', // 全て同じ {} 内に入れる [1, 2]
           50: '#fff1f2',
         },
         stone: {
@@ -52,8 +52,8 @@ export default {
           '100%': { transform: 'scale(4)', opacity: '0' }
         },
         'fade-in': {
-      '0%': { opacity: '0' },
-      '100%': { opacity: '0.6' },
+          '0%': { opacity: '0' },
+          '100%': { opacity: '0.6' }
         },
       },
       fontFamily: {
