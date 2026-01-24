@@ -278,6 +278,21 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [timerRemaining]);
 
+  // プレロード（事前読み込み）の処理
+useEffect(() => {
+  // プレロードしたい画像のリスト（パスはご自身の環境に合わせて調整してください）
+  const imagesToPreload = [
+    './bg-start.webp',
+    ...THEMES.map(t => t.bgImage),
+    ...THEMES.map(t => t.bgImage2x)
+  ];
+
+  imagesToPreload.forEach((src) => {
+    const img = new Image();
+    img.src = src;
+  });
+}, []); // 初回レンダリング時のみ実行
+
   const triggerVisualRipple = (x: number, y: number, color: string, size: number = 20) => {
     setRipples(prev => [...prev, {
       id: Math.random().toString(36),
@@ -681,7 +696,7 @@ const App: React.FC = () => {
 
       {!isPremium && (
         <div className="absolute top-8 left-8 z-40">
-          <button onClick={() => setShowPremiumModal(true)} className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-sakura-300/30 to-sakura-500/30 backdrop-blur-md rounded-full border border-sakura-400/40 text-sakura-50 text-xs font-bold tracking-widest uppercase hover:bg-sakura-500/40 transition-all shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-pulse-slow">
+          <button onClick={() => setShowPremiumModal(true)} className="flex items-center gap-2 px-6 py-2 bg-sakura-500/20 hover:bg-sakura-500/40 text-sakura-100 border border-sakura-400/30 rounded-full transition-all duration-700 ease-wa-ease  /* 👈 ここで統一感のある動きを適用 */backdrop-blur-md shadow-[0_0_15px_rgba(236,72,153,0.1)] animate-pulse-slow">
             <Flower size={14} className="text-sakura-200" /><span>Unlock Full Garden</span>
           </button>
         </div>
