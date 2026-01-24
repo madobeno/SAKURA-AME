@@ -43,8 +43,6 @@ import {
 import { audioEngine } from './services/audioEngine';
 import SakuraVisualizer from './components/SakuraVisualizer';
 import './index.css'; // これが Tailwind の設定を含んでるはずや！
-const START_BG = "/SAKURA-AME/bg-start.webp";
-const START_BG_2X = "/SAKURA-AME/bg-start@2x.webp";
 
 interface SongStep {
   noteId: string;
@@ -592,8 +590,8 @@ const App: React.FC = () => {
       {/* 背景レイヤー */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <img
-  src={START_BG}
-  srcSet={`${START_BG} 1x, ${START_BG_2X} 2x`}
+  src="./bg-start.webp"
+  srcSet="./bg-start.webp 1x, ./bg-start@2x.webp 2x"
   sizes="100vw"
   alt="Spring garden background"
   fetchpriority="high"
