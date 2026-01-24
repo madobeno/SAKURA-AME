@@ -584,7 +584,7 @@ const App: React.FC = () => {
   if (!hasStarted) {
   return (
     <div
-      className="fixed inset-0 h-[100svh] w-full overflow-hidden cursor-pointer grain"
+      className="fixed inset-0 h-[100svh] w-full overflow-hidden cursor-pointer"
       onClick={startExperience}
     >
       {/* 背景レイヤー */}

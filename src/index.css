@@ -29,5 +29,4 @@ body {
   opacity: 0.15;
   pointer-events: none;
   z-index: 20;
-  mix-blend-mode: screen;
 }
