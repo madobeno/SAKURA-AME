@@ -46,8 +46,8 @@ export const THEMES: Theme[] = [
   {
     id: "spring_garden",
     name: "春の庭 (Spring Garden)",
-    bgImage: START_BG,
-    bgImage2x: START_BG_2X,
+    bgImage: "bg-start.webp",
+    bgImage2x: "bg-start@2x.webp",
     bgGradient: "from-pink-300/40 to-stone-900/80",
     /* 🌸 ここに雨の色を追加！ */
     rainColor: "rgba(255, 241, 242, 0.6)", // ほんのり桜色の白

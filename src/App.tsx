@@ -282,7 +282,7 @@ const App: React.FC = () => {
 useEffect(() => {
   // プレロードしたい画像のリスト（パスはご自身の環境に合わせて調整してください）
   const imagesToPreload = [
-    './bg-start.webp',
+    'bg-start.webp',
     ...THEMES.map(t => t.bgImage),
     ...THEMES.map(t => t.bgImage2x)
   ];
@@ -616,7 +616,6 @@ useEffect(() => {
     absolute inset-0
     w-full h-[100svh]
     object-cover
-    opacity-60
     sm:blur-[2px]
   "
 />
@@ -658,7 +657,7 @@ useEffect(() => {
           <div key={theme.id} className={`absolute inset-0 transition-opacity duration-[1500ms] pointer-events-none ${currentTheme.id === theme.id ? 'opacity-100' : 'opacity-0'}`}>
             <img
   src={theme.bgImage}
-  srcSet={`${theme.bgImage} 1x, ${theme.bgImage2x} 2x`}
+  srcSet={`${theme.bgImage} 1x, ${theme.bgImage} 2x`}
   sizes="100vw"
   className="w-full h-full object-cover scale-[1.02]"
   alt=""
