@@ -605,7 +605,7 @@ const App: React.FC = () => {
   "
 />
 
-        <div className="absolute inset-0 z-10 bg-black/20 animate-fade-in" />
+        <div className="absolute inset-0 z-10 bg-black/20" />
       </div>
 
       {/* UIレイヤー */}

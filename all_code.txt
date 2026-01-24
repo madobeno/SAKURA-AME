@@ -30,7 +30,8 @@
   <script type="module" src="/src/main.tsx"></script>
 </body>
 
-</html>/** @type {import('tailwindcss').Config} */
+</html>
+/** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./index.html",
@@ -769,28 +770,29 @@ const App: React.FC = () => {
       onClick={startExperience}
     >
       {/* 背景レイヤー */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <img
   src="./bg-start.webp"
-  srcSet="./bg-start.webp 1x, /./bg-start@2x.webp 2x"
+  srcSet="./bg-start.webp 1x, ./bg-start@2x.webp 2x"
   sizes="100vw"
-  alt=""
-  decoding="async"
+  alt="Spring garden background"
+  fetchpriority="high"
+  decoding="sync"
   loading="eager"
   className="
     absolute inset-0
     w-full h-[100svh]
     object-cover
-    opacity-0 animate-fade-in
     sm:blur-[2px]
   "
 />
-        <div className="absolute inset-0 z-10 bg-black/40" />
+
+        <div className="absolute inset-0 z-10 bg-black/20 animate-fade-in" />
       </div>
 
       {/* UIレイヤー */}
       <div className="relative z-20 h-full w-full flex items-center justify-center text-sakura-100">
-        <div className="text-center space-y-8 p-12 max-w-lg bg-stone-950/50 sm:backdrop-blur-3xl rounded-3xl border border-white/10 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
+        <div className="text-center space-y-8 p-12 max-w-lg bg-stone-950/50 sm:backdrop-blur-2xl rounded-3xl border border-white/10 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
           <h1 className="text-8xl sm:text-7xl font-serif tracking-[0.4em] text-white mb-2">
             桜雨
           </h1>
@@ -1131,7 +1133,8 @@ const DrumButton: React.FC<{ note: Note, activeNote: string | null, spawnDrop: (
   );
 };
 
-export default App;import { StrictMode } from 'react'
+export default App;
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
@@ -1173,5 +1176,4 @@ body {
   opacity: 0.15;
   pointer-events: none;
   z-index: 20;
-  mix-blend-mode: screen;
 }
