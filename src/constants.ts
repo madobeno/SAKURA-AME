@@ -46,11 +46,15 @@ const START_BG_2X = "/SAKURA-AME/bg-start@2x.webp";
 
 export const THEMES: Theme[] = [
   {
-    id: "sakura",
-    name: "Sakura",
+    id: "spring_garden",
+    name: "春の庭 (Spring Garden)",
     bgImage: START_BG,
     bgImage2x: START_BG_2X,
     bgGradient: "from-pink-300/40 to-stone-900/80",
+    /* 🌸 ここに雨の色を追加！ */
+    rainColor: "rgba(255, 241, 242, 0.6)", // ほんのり桜色の白
+    accentColor: "#f472b6",                // 桜のピンク
+    particleColor: "#ffffff",              // 舞い散る花びらの白
     overlayColor: "rgba(0,0,0,0.25)",
     isPremium: false
   },
