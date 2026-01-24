@@ -1,3 +1,4 @@
+@charset "UTF-8";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -22,10 +23,11 @@ body {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100svh;
-  background-image: url("./assets/grain.png");
+  height: 100vh;
+  background-image: url('./assets/grain.png');
   background-repeat: repeat;
   opacity: 0.03;
   pointer-events: none;
-  z-index: 100;
+  z-index: 20;
+  mix-blend-mode: overlay;
 }

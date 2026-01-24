@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fontsource/noto-serif-jp": "^5.2.8",
     "@vitejs/plugin-react": "^5.1.2",
     "lucide-react": "^0.562.0",
     "path": "^0.12.7",

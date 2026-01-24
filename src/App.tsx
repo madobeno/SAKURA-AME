@@ -600,7 +600,7 @@ const App: React.FC = () => {
     absolute inset-0
     w-full h-[100svh]
     object-cover
-    animate-fade-in
+    opacity-0 animate-fade-in
     sm:blur-[2px]
   "
 />
@@ -635,7 +635,7 @@ const App: React.FC = () => {
   const drumSize = isMobile ? Math.min(dimensions.width * 0.35, dimensions.height * 0.25) : Math.min(dimensions.width * 0.4, dimensions.height * 0.35);
 
   return (
-    <div className={`relative h-screen w-full bg-stone-950 overflow-hidden font-serif select-none transition-colors duration-1000 grain ${activeEffect === 'storm' ? 'animate-pulse-slow' : ''}`} onMouseDown={() => audioEngine.resume()} onTouchStart={() => audioEngine.resume()}>
+    <div className={`relative h-[100svh] w-full bg-stone-950 overflow-hidden font-serif select-none transition-colors duration-1000 grain ${activeEffect === 'storm' ? 'animate-pulse-slow' : ''}`} onMouseDown={() => audioEngine.resume()} onTouchStart={() => audioEngine.resume()}>
       <div className="absolute inset-0 z-0 overflow-hidden bg-black">
         {THEMES.map((theme) => (
           <div key={theme.id} className={`absolute inset-0 transition-opacity duration-[1500ms] pointer-events-none ${currentTheme.id === theme.id ? 'opacity-100' : 'opacity-0'}`}>
