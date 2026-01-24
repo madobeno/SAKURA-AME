@@ -590,25 +590,25 @@ const App: React.FC = () => {
       {/* 背景レイヤー */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/SAKURA-AME/bg-start.webp"
-          srcSet="/SAKURA-AME/bg-start.webp 1x, /SAKURA-AME/bg-start@2x.webp 2x"
-          sizes="100vw"
-          alt=""
-          decoding="async"
-          fetchPriority="high"
-          className="
-            w-full h-full
-            object-cover
-            opacity-0 animate-fade-in
-            sm:blur-[2px]
-            will-change-transform
-          "
-        />
-        <div className="absolute inset-0 bg-black/40" />
+  src="/SAKURA-AME/bg-start.webp"
+  srcSet="/SAKURA-AME/bg-start.webp 1x, /SAKURA-AME/bg-start@2x.webp 2x"
+  sizes="100vw"
+  alt=""
+  decoding="async"
+  loading="eager"
+  className="
+    absolute inset-0
+    w-full h-[100svh]
+    object-cover
+    animate-fade-in
+    sm:blur-[2px]
+  "
+/>
+        <div className="absolute inset-0 z-10 bg-black/40" />
       </div>
 
       {/* UIレイヤー */}
-      <div className="relative z-10 h-full w-full flex items-center justify-center text-sakura-100">
+      <div className="relative z-20 h-full w-full flex items-center justify-center text-sakura-100">
         <div className="text-center space-y-8 p-12 max-w-lg bg-stone-950/50 sm:backdrop-blur-3xl rounded-3xl border border-white/10 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
           <h1 className="text-8xl sm:text-7xl font-serif tracking-[0.4em] text-white mb-2">
             桜雨

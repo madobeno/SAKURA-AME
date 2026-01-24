@@ -31,6 +31,7 @@ export default {
         'wa-float': 'wa-float 8s ease-in-out infinite',
         'bloom': 'bloom 1.5s cubic-bezier(0.1, 0.7, 0.2, 1) forwards',
         'ripple-out': 'ripple-out 4s cubic-bezier(0, 0, 0.2, 1) infinite',
+        'fade-in': 'fadeIn 1.2s ease-out forwards',
       },
       keyframes: {
         'ripple-in': {
@@ -49,6 +50,10 @@ export default {
         'ripple-out': {
           '0%': { transform: 'scale(0.5)', opacity: '0.6' },
           '100%': { transform: 'scale(4)', opacity: '0' }
+        }
+        'fadeIn': {
+      '0%': { opacity: '0' },
+      '100%': { opacity: '1' },
         }
       },
       fontFamily: {
