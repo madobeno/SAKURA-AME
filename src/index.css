@@ -26,8 +26,8 @@ body {
   height: 100vh;
   background-image: url('./assets/grain.png');
   background-repeat: repeat;
-  opacity: 0.03;
+  opacity: 0.15;
   pointer-events: none;
   z-index: 20;
-  mix-blend-mode: overlay;
+  mix-blend-mode: screen;
 }
