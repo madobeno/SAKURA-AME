@@ -648,7 +648,7 @@ const App: React.FC = () => {
   decoding="async"
 />
 
-            <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} mix-blend-multiply opacity-80`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} opacity-60`}></div>
             <div className="absolute inset-0" style={{ backgroundColor: theme.overlayColor }}></div>
           </div>
         ))}
