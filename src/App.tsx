@@ -590,12 +590,12 @@ const App: React.FC = () => {
       {/* 背景レイヤー */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <img
-  src="/SAKURA-AME/bg-start.webp"
-  srcSet="/SAKURA-AME/bg-start.webp 1x, /SAKURA-AME/bg-start@2x.webp 2x"
+  src="bg-start.webp"
+  srcSet="bg-start.webp 1x, bg-start@2x.webp 2x"
   sizes="100vw"
   alt="Spring garden background"
   fetchpriority="high"
-  decoding="sync"
+  decoding="async"
   loading="eager"
   className="
     absolute inset-0
@@ -649,7 +649,7 @@ const App: React.FC = () => {
   decoding="async"
 />
 
-            <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} opacity-60`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} opacity-20`}></div>
             <div className="absolute inset-0" style={{ backgroundColor: theme.overlayColor }}></div>
           </div>
         ))}

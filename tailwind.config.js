@@ -25,6 +25,12 @@ export default {
           100: '#f5f5f4',
         }
       },
+      transitionDuration: {
+        '2000': '2000ms',
+      },
+      transitionTimingFunction: {
+        'wa-ease': 'cubic-bezier(0.22, 1, 0.36, 1)',
+      },
       animation: {
         'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'ripple-in': 'ripple-in 2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
