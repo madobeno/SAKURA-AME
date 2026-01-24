@@ -594,13 +594,14 @@ const App: React.FC = () => {
   srcSet="./bg-start.webp 1x, /./bg-start@2x.webp 2x"
   sizes="100vw"
   alt=""
-  decoding="async"
+  fetchpriority="high"
+  decoding="sync"
   loading="eager"
   className="
     absolute inset-0
     w-full h-[100svh]
     object-cover
-    opacity-0 animate-fade-in
+    animate-fade-in
     sm:blur-[2px]
   "
 />

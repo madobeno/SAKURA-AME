@@ -45,7 +45,7 @@ export default {
           700: '#be185d',
           500: '#ec4899',
           300: '#f9a8d4',
-          100: '#fce7f3',
+          100: '#fce7f3', // 全て同じ {} 内に入れる [1, 2]
           50: '#fff1f2',
         },
         stone: {
@@ -82,11 +82,11 @@ export default {
         'ripple-out': {
           '0%': { transform: 'scale(0.5)', opacity: '0.6' },
           '100%': { transform: 'scale(4)', opacity: '0' }
-        }
+        },
         'fade-in': {
-      '0%': { opacity: '0' },
-      '100%': { opacity: '0.6' },
-        }
+          '0%': { opacity: '0' },
+          '100%': { opacity: '0.6' }
+        },
       },
       fontFamily: {
         serif: ['"Noto Serif JP"', 'serif'],
@@ -771,8 +771,8 @@ const App: React.FC = () => {
       {/* 背景レイヤー */}
       <div className="absolute inset-0 z-0">
         <img
-  src="/SAKURA-AME/bg-start.webp"
-  srcSet="/SAKURA-AME/bg-start.webp 1x, /SAKURA-AME/bg-start@2x.webp 2x"
+  src="./bg-start.webp"
+  srcSet="./bg-start.webp 1x, /./bg-start@2x.webp 2x"
   sizes="100vw"
   alt=""
   decoding="async"
@@ -829,7 +829,7 @@ const App: React.FC = () => {
   decoding="async"
 />
 
-            <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} mix-blend-multiply opacity-80`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} opacity-60`}></div>
             <div className="absolute inset-0" style={{ backgroundColor: theme.overlayColor }}></div>
           </div>
         ))}
@@ -1170,8 +1170,8 @@ body {
   height: 100vh;
   background-image: url('./assets/grain.png');
   background-repeat: repeat;
-  opacity: 0.03;
+  opacity: 0.15;
   pointer-events: none;
   z-index: 20;
-  mix-blend-mode: overlay;
+  mix-blend-mode: screen;
 }
