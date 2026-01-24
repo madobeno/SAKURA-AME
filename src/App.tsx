@@ -43,6 +43,8 @@ import {
 import { audioEngine } from './services/audioEngine';
 import SakuraVisualizer from './components/SakuraVisualizer';
 import './index.css'; // これが Tailwind の設定を含んでるはずや！
+const START_BG = "/SAKURA-AME/bg-start.webp";
+const START_BG_2X = "/SAKURA-AME/bg-start@2x.webp";
 
 interface SongStep {
   noteId: string;
