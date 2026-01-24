@@ -582,39 +582,53 @@ const App: React.FC = () => {
   };
 
   if (!hasStarted) {
-    return (
-      <div
-        className="fixed inset-0 h-[100svh] w-full flex flex-col items-center justify-center bg-stone-950 text-sakura-100 overflow-hidden cursor-pointer grain"
-        onClick={startExperience}
-      >
+  return (
+    <div
+      className="fixed inset-0 h-[100svh] w-full overflow-hidden cursor-pointer grain"
+      onClick={startExperience}
+    >
+      {/* 背景レイヤー */}
+      <div className="absolute inset-0 z-0">
         <img
-  src="/bg-start.webp"
-  srcSet="/bg-start.webp 1x, /bg-start@2x.webp 2x"
-  sizes="100vw"
-  alt=""
-  decoding="async"
-  loading="eager"
-  className="
-    absolute inset-0
-    w-full h-[100svh]
-    object-cover
-    opacity-0 animate-fade-in
-    sm:blur-[2px]
-  "
-/>
+          src="/SAKURA-AME/bg-start.webp"
+          srcSet="/SAKURA-AME/bg-start.webp 1x, /SAKURA-AME/bg-start@2x.webp 2x"
+          sizes="100vw"
+          alt=""
+          decoding="async"
+          fetchPriority="high"
+          className="
+            w-full h-full
+            object-cover
+            opacity-0 animate-fade-in
+            sm:blur-[2px]
+            will-change-transform
+          "
+        />
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
 
-
-
-        <div className="relative z-10 text-center space-y-8 p-12 max-w-lg bg-stone-950/50 sm:backdrop-blur-3xl rounded-3xl border border-white/10 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
-          <h1 className="text-8xl font-serif tracking-[0.4em] text-white mb-2 drop-shadow-[0_15px_15px_rgba(0,0,0,0.9)]">桜雨</h1>
-          <h2 className="text-xl font-light tracking-[0.3em] text-sakura-100/90 uppercase drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">Sakura Ame</h2>
-          <div className="w-24 h-[1.5px] bg-white/40 mx-auto my-6 shadow-2xl"></div>
-          <p className="text-sm font-serif text-white/80 italic drop-shadow-lg tracking-widest">Gentle Rain Instrument</p>
-          <div className="mt-8 p-4 px-14 border border-white/30 bg-white/5 rounded-full text-xs text-white hover:bg-white/10 hover:border-white/50 transition-all shadow-2xl font-bold tracking-[0.4em] uppercase">Start Experience</div>
+      {/* UIレイヤー */}
+      <div className="relative z-10 h-full w-full flex items-center justify-center text-sakura-100">
+        <div className="text-center space-y-8 p-12 max-w-lg bg-stone-950/50 sm:backdrop-blur-3xl rounded-3xl border border-white/10 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
+          <h1 className="text-8xl sm:text-7xl font-serif tracking-[0.4em] text-white mb-2">
+            桜雨
+          </h1>
+          <h2 className="text-xl tracking-[0.3em] text-sakura-100/90 uppercase">
+            Sakura Ame
+          </h2>
+          <div className="w-24 h-[1.5px] bg-white/40 mx-auto my-6" />
+          <p className="text-sm italic tracking-widest">
+            Gentle Rain Instrument
+          </p>
+          <div className="mt-8 px-14 py-4 border border-white/30 bg-white/5 rounded-full text-xs font-bold tracking-[0.4em] uppercase">
+            Start Experience
+          </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
 
 
   const isMobile = dimensions.width < 640;

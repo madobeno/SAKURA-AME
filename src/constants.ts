@@ -41,8 +41,8 @@ export const NOTES: Note[] = [
   }))
 ];
 
-const START_BG = "/bg-start.webp";
-const START_BG_2X = "/bg-start@2x.webp";
+const START_BG = "/SAKURA-AME/bg-start.webp";
+const START_BG_2X = "/SAKURA-AME/bg-start@2x.webp";
 
 export const THEMES: Theme[] = [
   {
