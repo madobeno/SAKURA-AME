@@ -588,10 +588,10 @@ const App: React.FC = () => {
       onClick={startExperience}
     >
       {/* 背景レイヤー */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 pointer-events-none">
         <img
-  src="./bg-start.webp"
-  srcSet="./bg-start.webp 1x, ./bg-start@2x.webp 2x"
+  src={START_BG}
+  srcSet={`${START_BG} 1x, ${START_BG_2X} 2x`}
   sizes="100vw"
   alt="Spring garden background"
   fetchpriority="high"
@@ -604,7 +604,8 @@ const App: React.FC = () => {
     sm:blur-[2px]
   "
 />
-        <div className="absolute inset-0 z-10 bg-black/40" />
+
+        <div className="absolute inset-0 z-10 bg-black/20 animate-fade-in" />
       </div>
 
       {/* UIレイヤー */}
