@@ -279,27 +279,21 @@ const App: React.FC = () => {
   }, [timerRemaining]);
 
   // プレロード（事前読み込み）の処理
-useEffect(() => {
-  // プレロードしたい画像のリスト（パスはご自身の環境に合わせて調整してください）
-  const imagesToPreload = [
-    'bg-start.webp',
-    ...THEMES.map(t => t.bgImage),
-    ...THEMES.map(t => t.bgImage2x)
-  ];
+  useEffect(() => {
+    const imagesToPreload = [
+      'bg-start.webp',
+      // t => t.bgImage と記述して、リスト内の各要素を正しく参照します
+      ...THEMES.map(t => t.bgImage),
+      ...THEMES.map(t => t.bgImage2x)
+    ].filter(Boolean); // 念のため、空の要素を除外するガードを入れるとより安全です
 
-  imagesToPreload.forEach((src) => {
-    const img = new Image();
-    img.src = src;
-  });
-}, []); // 初回レンダリング時のみ実行
-
-  const triggerVisualRipple = (x: number, y: number, color: string, size: number = 20) => {
-    setRipples(prev => [...prev, {
-      id: Math.random().toString(36),
-      x, y, size, opacity: 1.0,
-      color
-    }]);
-  };
+    imagesToPreload.forEach((src) => {
+      if (src) {
+        const img = new Image();
+        img.src = src;
+      }
+    });
+  }, []);
 
   const finishTimer = () => {
     setTimerRemaining(0);
@@ -657,11 +651,13 @@ useEffect(() => {
           <div key={theme.id} className={`absolute inset-0 transition-opacity duration-[1500ms] pointer-events-none ${currentTheme.id === theme.id ? 'opacity-100' : 'opacity-0'}`}>
             <img
   src={theme.bgImage}
-  srcSet={`${theme.bgImage} 1x, ${theme.bgImage} 2x`}
+  srcSet={`${theme.bgImage} 1x, ${theme.bgImage2x} 2x`}
   sizes="100vw"
   className="w-full h-full object-cover scale-[1.02]"
   alt=""
   decoding="async"
+  loading={currentTheme.id === theme.id ? "eager" : "lazy"} 
+  fetchpriority={currentTheme.id === theme.id ? "high" : "low"}
 />
 
             <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} opacity-20`}></div>
