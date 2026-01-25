@@ -544,24 +544,30 @@ const App: React.FC = () => {
       opacity: r.opacity - 0.006
     })).filter(r => r.opacity > 0));
     setParticles(prev => {
-      const next = prev.map(p => ({
-        ...p,
-        x: p.x + p.velocity.x,
-        y: p.y + p.velocity.y + (activeEffect === 'blizzard' ? 0.05 : 0.15),
-        rotation: p.rotation + 0.02,
-        opacity: p.opacity - (activeEffect === 'blizzard' ? 0.004 : 0.009)
-      })).filter(p => p.opacity > 0);
+      // 1. パーティクル数が多い場合、計算をスキップするか間引く（上限の厳格化）
+      const MAX_PARTICLES = activeEffect === 'blizzard' ? 60 : 40; // 100個から削減
+  
+      const next = prev
+        .slice(-MAX_PARTICLES) // 古いものを先に捨てて計算対象を絞る
+        .map(p => ({
+          ...p,
+          x: p.x + p.velocity.x,
+          y: p.y + p.velocity.y + (activeEffect === 'blizzard' ? 0.05 : 0.15),
+          rotation: p.rotation + 0.02,
+          opacity: p.opacity - (activeEffect === 'blizzard' ? 0.006 : 0.012) // 消える速度を少し速める
+        }))
+        .filter(p => p.opacity > 0 && p.x < dimensions.width + 50); // 画面外（右）に出た判定も追加 
 
-      if (activeEffect === 'blizzard' && Math.random() > 0.95 && next.length < 100) {
+      if (activeEffect === 'blizzard' && Math.random() > 0.96 && next.length < MAX_PARTICLES) {
         next.push({
           id: Math.random().toString(36),
-          x: -50,
+          x: -20,
           y: Math.random() * dimensions.height,
           rotation: Math.random() * Math.PI,
           opacity: 1,
-          velocity: { x: 2 + Math.random() * 3, y: -0.5 + Math.random() * 1 },
+          velocity: { x: 2 + Math.random() * 2, y: -0.3 + Math.random() * 0.6 },
           color: currentTheme.particleColor,
-          size: 8 + Math.random() * 10
+          size: 6 + Math.random() * 6 // 少しサイズを小さくして描画負荷を軽減
         });
       }
       return next;
@@ -620,7 +626,7 @@ const App: React.FC = () => {
   sizes="100vw"
   alt="Spring garden background"
   fetchpriority="high"
-  decoding="async"
+  decoding="sync"
   loading="eager"
   className="
     absolute inset-0
