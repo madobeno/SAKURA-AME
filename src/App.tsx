@@ -146,6 +146,8 @@ const SOUND_LABELS: Record<SoundType, string> = {
 };
 
 const App: React.FC = () => {
+  console.log("Current Theme:", currentTheme);
+  if (!currentTheme) console.error("テーマが見つかりません！");
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [hasStarted, setHasStarted] = useState(false);
   const [drops, setDrops] = useState<RainDrop[]>([]);
@@ -279,21 +281,23 @@ const App: React.FC = () => {
   }, [timerRemaining]);
 
   // プレロード（事前読み込み）の処理
-  useEffect(() => {
+  /*useEffect(() => {
     const imagesToPreload = [
       'bg-start.webp',
       // t => t.bgImage と記述して、リスト内の各要素を正しく参照します
       ...THEMES.map(t => t.bgImage),
       ...THEMES.map(t => t.bgImage2x)
-    ].filter(Boolean); // 念のため、空の要素を除外するガードを入れるとより安全です
+    ].filter(src => typeof src === 'string'); // 念のため、空の要素を除外するガードを入れるとより安全です
 
     imagesToPreload.forEach((src) => {
+      const img = new Image();
+    // ここで src が undefined にならないよう徹底
       if (src) {
         const img = new Image();
         img.src = src;
       }
     });
-  }, []);
+  }, []);*/
 
   const finishTimer = () => {
     setTimerRemaining(0);
