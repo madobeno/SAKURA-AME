@@ -673,8 +673,13 @@ const App: React.FC = () => {
           <div key={theme.id} className={`absolute inset-0 transition-opacity duration-[1500ms] pointer-events-none ${currentTheme.id === theme.id ? 'opacity-100' : 'opacity-0'}`}>
             <img
   src={theme.bgImage}
-  srcSet={`${theme.bgImage} 1x, ${theme.bgImage2x} 2x`}
+  srcSet={`${theme.bgImage} 1200w, ${theme.bgImage2x} 2400w`}
   sizes="100vw"
+  // 明示的なサイズ指定（CLS対策）
+  width="1200"
+  height="800"
+  // CSSでアスペクト比を維持
+  style={{ aspectRatio: '3 / 2' }} // 1200:800 = 3:2
   className="w-full h-full object-cover scale-[1.02]"
   alt=""
   decoding="async"
