@@ -455,9 +455,10 @@ const App: React.FC = () => {
         });
       }
       setParticles(prev => [...prev, ...burst]);
-    }
-    triggerVisualRipple(x, y, currentTheme.accentColor, 10);
-  }, [isMuted, currentTheme, activeEffect]);
+    } // 👈 if文の終わり
+    
+    // triggerVisualRipple(x, y, currentTheme.accentColor, 10); // 👈 ここを安全にコメントアウト
+  }, [isMuted, currentTheme, activeEffect]); // 👈 464行目：ここが正しく閉じていればビルドが通ります
 
   const spawnDrop = (noteId: string) => {
     if (isTimerFinished || document.hidden) return;
