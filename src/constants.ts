@@ -44,23 +44,24 @@ export const NOTES: Note[] = [
 
 export const THEMES: Theme[] = [
   {
-    id: "spring_garden",
-    name: "春の庭 (Spring Garden)",
-    bgImage: "bg-start.webp",
-    bgImage2x: "bg-start@2x.webp",
-    bgGradient: "from-pink-300/40 to-stone-900/80",
-    /* 🌸 ここに雨の色を追加！ */
-    rainColor: "rgba(255, 241, 242, 0.6)", // ほんのり桜色の白
-    accentColor: "#f472b6",                // 桜のピンク
-    particleColor: "#ffffff",              // 舞い散る花びらの白
-    overlayColor: "rgba(0,0,0,0.25)",
+    id: 'spring_garden',
+    name: '春の庭 (Spring Garden)',
+    bgImage: 'bg-start.webp',
+    bgImage2x: 'bg-start.webp2x', // 2xがなければ一旦同じ名前で埋める
+    bgGradient: 'from-pink-300/40 to-stone-900/80',
+    drumColor: 'rgba(244, 114, 182, 0.2)', // 🌸 springに欠けていた項目を追加
+    rainColor: 'rgba(255, 241, 242, 0.6)',
+    accentColor: '#f472b6',
+    particleColor: '#ffffff',
+    overlayColor: 'rgba(0,0,0,0.25)',
     isPremium: false
   },
   {
     id: 'night_garden',
     name: '夜の庭 (Night Garden)',
     bgGradient: 'from-slate-950 via-indigo-950/40 to-stone-950',
-    bgImage: "bg-night.webp",
+    bgImage: 'bg-night.webp',
+    bgImage2x: 'bg-night.webp2x', // 👈 これを追加！
     drumColor: 'rgba(30, 27, 75, 0.3)',
     rainColor: 'rgba(165, 180, 252, 0.5)',
     accentColor: '#818cf8',
@@ -72,7 +73,8 @@ export const THEMES: Theme[] = [
     id: 'old_capital',
     name: '古都 (Old Capital)',
     bgGradient: 'from-stone-950 via-orange-950/20 to-stone-900',
-    bgImage: "bg-capital.webp",
+    bgImage: 'bg-capital.webp',
+    bgImage2x: 'bg-capital.webp2x', // 👈 これを追加！
     drumColor: 'rgba(66, 32, 6, 0.25)', 
     rainColor: 'rgba(254, 202, 202, 0.65)',
     accentColor: '#fb923c', 
@@ -84,7 +86,8 @@ export const THEMES: Theme[] = [
     id: 'tsumugi',
     name: 'つむぎ糸 (Tsumugi-ito)',
     bgGradient: 'from-stone-800 via-stone-700/30 to-stone-900',
-    bgImage: "bg-tsumugi.webp",
+    bgImage: 'bg-tsumugi.webp',
+    bgImage2x: 'bg-tsumugi.webp2x', // 👈 これを追加！
     drumColor: 'rgba(87, 83, 78, 0.25)',
     rainColor: 'rgba(214, 211, 209, 0.6)',
     accentColor: '#a8a29e',
