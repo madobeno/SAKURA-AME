@@ -118,7 +118,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png'],
+      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png','bg-start.webp','bg-night.webp','bg-capital.webp','bg-stumugi.webp'],
       manifest: {
         name: '桜雨 - SakuraAme',
         short_name: '桜雨',
@@ -143,31 +143,29 @@ export default defineConfig({
         ]
       },
       workbox: {
-        // Unsplashなどの外部画像もキャッシュに含める設定
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'unsplash-images',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-stylesheets'
-            }
-          }
-        ]
+  // 1. 静的アセット（JS, CSS, ローカル画像）のキャッシュ
+  maximumFileSizeToCacheInBytes: 3000000,
+  globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
+  
+  // 2. 外部キャッシュ設定（Unsplash用）はもう不要なので削除
+  // 代わりに、もし Google Fonts などを使っているならそれだけ残します
+  runtimeCaching: [
+    {
+      urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'google-fonts-cache',
+        expiration: {
+          maxEntries: 10,
+          maxAgeSeconds: 60 * 60 * 24 * 365 // 1年
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
       }
+    }
+  ]
+}
     })
   ],
   resolve: {
@@ -467,27 +465,21 @@ const App: React.FC = () => {
   }, [timerRemaining]);
 
   // プレロード（事前読み込み）の処理
-useEffect(() => {
-  // プレロードしたい画像のリスト（パスはご自身の環境に合わせて調整してください）
-  const imagesToPreload = [
-    './bg-start.webp',
-    ...THEMES.map(t => t.bgImage),
-    ...THEMES.map(t => t.bgImage2x)
-  ];
+  useEffect(() => {
+    const imagesToPreload = [
+      'bg-start.webp',
+      // t => t.bgImage と記述して、リスト内の各要素を正しく参照します
+      ...THEMES.map(t => t.bgImage),
+      ...THEMES.map(t => t.bgImage2x)
+    ].filter(Boolean); // 念のため、空の要素を除外するガードを入れるとより安全です
 
-  imagesToPreload.forEach((src) => {
-    const img = new Image();
-    img.src = src;
-  });
-}, []); // 初回レンダリング時のみ実行
-
-  const triggerVisualRipple = (x: number, y: number, color: string, size: number = 20) => {
-    setRipples(prev => [...prev, {
-      id: Math.random().toString(36),
-      x, y, size, opacity: 1.0,
-      color
-    }]);
-  };
+    imagesToPreload.forEach((src) => {
+      if (src) {
+        const img = new Image();
+        img.src = src;
+      }
+    });
+  }, []);
 
   const finishTimer = () => {
     setTimerRemaining(0);
@@ -787,7 +779,7 @@ useEffect(() => {
   if (!hasStarted) {
   return (
     <div
-      className="fixed inset-0 h-[100svh] w-full overflow-hidden cursor-pointer grain"
+      className="fixed inset-0 h-[100svh] w-full overflow-hidden cursor-pointerbg-[#1c1917] flex flex-col items-center justify-center"
       onClick={startExperience}
     >
       {/* 背景レイヤー */}
@@ -812,7 +804,7 @@ useEffect(() => {
       </div>
 
       {/* UIレイヤー */}
-      <div className="relative z-20 h-full w-full flex items-center justify-center text-sakura-100">
+      <div className="relative z-10 h-full w-full flex items-center justify-center text-sakura-100">
         <div className="text-center space-y-8 p-12 max-w-lg bg-stone-950/50 sm:backdrop-blur-2xl rounded-3xl border border-white/10 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.6)] animate-ripple-in">
           <h1 className="text-8xl sm:text-7xl font-serif tracking-[0.4em] text-white mb-2">
             桜雨
@@ -850,6 +842,8 @@ useEffect(() => {
   className="w-full h-full object-cover scale-[1.02]"
   alt=""
   decoding="async"
+  loading={currentTheme.id === theme.id ? "eager" : "lazy"} 
+  fetchpriority={currentTheme.id === theme.id ? "high" : "low"}
 />
 
             <div className={`absolute inset-0 bg-gradient-to-b ${theme.bgGradient} opacity-20`}></div>
@@ -1192,7 +1186,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: url('/SAKURA-AME/assets/grain.png');
+  background-image: url('./assets/grain.png');
   background-repeat: repeat;
   opacity: 0.03;
   pointer-events: none;
