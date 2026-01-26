@@ -622,7 +622,7 @@ const App: React.FC = () => {
       <div className="absolute inset-0 z-0 pointer-events-none">
         <img
   src="bg-start.webp"
-  srcSet="bg-start.webp 1x, bg-start2x.webp 2x"
+  srcSet="bg-start.webp 1x, bg-start@2x.webp 2x"
   sizes="100vw"
   alt="Spring garden background"
   fetchpriority="high"

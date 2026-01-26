@@ -14,7 +14,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png','bg-start.webp','bg-night.webp','bg-capital.webp','bg-tsumugi.webp'],
+      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png','bg-start.webp','bg-night.webp','bg-capital.webp','bg-tsumugi.webp' ,'bg-start@2x.webp','bg-night@2x.webp','bg-capital@2x.webp','bg-tsumugi@2x.webp'],
       manifest: {
         name: '桜雨 - SakuraAme',
         short_name: '桜雨',
