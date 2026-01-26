@@ -435,7 +435,7 @@ const App: React.FC = () => {
   // 波紋を生成する関数
   const triggerVisualRipple = (x: number, y: number, color: string, startSize: number = 10) => {
     const newRipple: Ripple = {
-      id: time + i,
+      id: Math.random().toString(36),
       x,
       y,
       size: startSize,
