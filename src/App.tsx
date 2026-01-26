@@ -435,7 +435,7 @@ const App: React.FC = () => {
   // 波紋を生成する関数
   const triggerVisualRipple = (x: number, y: number, color: string, startSize: number = 10) => {
     const newRipple: Ripple = {
-      id: Math.random().toString(36),
+      id: time + i,
       x,
       y,
       size: startSize,
@@ -523,57 +523,60 @@ const App: React.FC = () => {
   }, [isAutoPlaying, currentSongKey, currentStepIndex, isTimerFinished, activeEffect]);
 
   const animate = (time: number) => {
-    if (isTimerFinished || document.hidden) {
-      requestRef.current = requestAnimationFrame(animate);
-      return;
-    }
-    setDrops(prevDrops => {
-      const nextDrops: RainDrop[] = [];
-      prevDrops.forEach(drop => {
-        const newY = drop.y + drop.speed;
-        if (!drop.hasHit && newY >= drop.targetY) {
-          handleHit(drop.noteId, drop.x, drop.targetY);
-        } else if (!drop.hasHit && newY < dimensions.height) {
-          nextDrops.push({ ...drop, y: newY });
-        }
-      });
-      return nextDrops;
-    });
-    setRipples(prevRipples => prevRipples.map(r => ({
-      ...r, size: r.size + (r.size > 50 ? 1.5 : 1.2),
-      opacity: r.opacity - 0.006
-    })).filter(r => r.opacity > 0));
-    setParticles(prev => {
-      // 1. パーティクル数が多い場合、計算をスキップするか間引く（上限の厳格化）
-      const MAX_PARTICLES = activeEffect === 'blizzard' ? 60 : 40; // 100個から削減
-  
-      const next = prev
-        .slice(-MAX_PARTICLES) // 古いものを先に捨てて計算対象を絞る
-        .map(p => ({
-          ...p,
-          x: p.x + p.velocity.x,
-          y: p.y + p.velocity.y + (activeEffect === 'blizzard' ? 0.05 : 0.15),
-          rotation: p.rotation + 0.02,
-          opacity: p.opacity - (activeEffect === 'blizzard' ? 0.006 : 0.012) // 消える速度を少し速める
-        }))
-        .filter(p => p.opacity > 0 && p.x < dimensions.width + 50); // 画面外（右）に出た判定も追加 
-
-      if (activeEffect === 'blizzard' && Math.random() > 0.96 && next.length < MAX_PARTICLES) {
-        next.push({
-          id: Math.random().toString(36),
-          x: -20,
-          y: Math.random() * dimensions.height,
-          rotation: Math.random() * Math.PI,
-          opacity: 1,
-          velocity: { x: 2 + Math.random() * 2, y: -0.3 + Math.random() * 0.6 },
-          color: currentTheme.particleColor,
-          size: 6 + Math.random() * 6 // 少しサイズを小さくして描画負荷を軽減
-        });
-      }
-      return next;
-    });
+  if (isTimerFinished || document.hidden) {
     requestRef.current = requestAnimationFrame(animate);
-  };
+    return;
+  }
+
+  // 1. 雨粒の処理（filterを1回にまとめる）
+  setDrops(prev => prev.filter(drop => {
+    const newY = drop.y + drop.speed;
+    if (!drop.hasHit && newY >= drop.targetY) {
+      handleHit(drop.noteId, drop.x, drop.targetY);
+      return false; // ヒットしたら即削除
+    }
+    drop.y = newY; // 破壊的代入でメモリ節約
+    return newY < dimensions.height;
+  }).map(d => ({...d}))); // Reactのために新しい参照だけ作る
+
+  // 2. 波紋の処理
+  setRipples(prev => prev
+    .map(r => {
+      r.size += (r.size > 50 ? 1.5 : 1.2);
+      r.opacity -= 0.006;
+      return r;
+    })
+    .filter(r => r.opacity > 0)
+    .map(r => ({...r}))
+  );
+
+  // 3. パーティクルの処理
+  setParticles(prev => {
+    const MAX = activeEffect === 'blizzard' ? 50 : 30; // さらに絞る
+    const next = prev.slice(-MAX).map(p => {
+      p.x += p.velocity.x;
+      p.y += p.velocity.y + (activeEffect === 'blizzard' ? 0.05 : 0.15);
+      p.opacity -= (activeEffect === 'blizzard' ? 0.006 : 0.012);
+      return {...p}; // 最後に1回だけコピー
+    }).filter(p => p.opacity > 0);
+
+    if (activeEffect === 'blizzard' && Math.random() > 0.97 && next.length < MAX) {
+      next.push({
+        id: `b-${time}-${Math.random()}`, // 高速なID生成
+        x: -20,
+        y: Math.random() * dimensions.height,
+        rotation: 0,
+        opacity: 1,
+        velocity: { x: 2.5, y: 0 },
+        color: currentTheme.particleColor,
+        size: 8
+      });
+    }
+    return next;
+  });
+
+  requestRef.current = requestAnimationFrame(animate);
+};
 
   useEffect(() => {
     if (hasStarted) requestRef.current = requestAnimationFrame(animate);
@@ -615,7 +618,7 @@ const App: React.FC = () => {
   if (!hasStarted) {
   return (
     <div
-      className="fixed inset-0 h-[100svh] w-full overflow-hidden cursor-pointerbg-[#1c1917] flex flex-col items-center justify-center"
+      className="fixed inset-0 h-[100svh] w-full overflow-hidden cursor-pointer bg-[#1c1917] flex flex-col items-center justify-center"
       onClick={startExperience}
     >
       {/* 背景レイヤー */}
