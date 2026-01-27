@@ -31,7 +31,6 @@ android/
 build/
 *.apk
 *.aab
-twa-manifest.json
 
 # === Node / misc ===
 node_modules/
