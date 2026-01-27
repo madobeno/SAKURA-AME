@@ -17,9 +17,30 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
-*.keystore
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# === Secrets ===
+*.keystore
+
+# === Bubblewrap / TWA ===
+android/
+build/
+*.apk
+*.aab
+twa-manifest.json
+
+# === Node / misc ===
+node_modules/
+.DS_Store
+# Bubblewrap / TWA
+android/
+build/
+*.apk
+*.aab
+
+# Android signing keys
+*.keystore
