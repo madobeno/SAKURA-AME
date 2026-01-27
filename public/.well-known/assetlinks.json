@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.madobeno.twa",
+      "sha256_cert_fingerprints": [
+        "8F:61:D1:9B:85:AF:E7:8B:72:1A:61:E5:3B:09:36:4B:C7:67:D4:69:16:D3:9C:97:E4:84:2A:0F:64:71:67:1C"
+      ]
+    }
+  }
+]
